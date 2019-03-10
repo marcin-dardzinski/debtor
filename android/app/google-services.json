@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "276811706961",
+    "firebase_url": "https://debtor-893b0.firebaseio.com",
+    "project_id": "debtor-893b0",
+    "storage_bucket": "debtor-893b0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:276811706961:android:b84745fdff008009",
+        "android_client_info": {
+          "package_name": "com.example.debtor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "276811706961-j4nfjd1n3qkg6gokssc3cgesj5gtrpnf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.debtor",
+            "certificate_hash": "05d5b330d0c8034415f6829edc43eac990198538"
+          }
+        },
+        {
+          "client_id": "276811706961-ldoqglthcar2i1d5gvki3kk8nls4u153.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKQQTN-T7zaagAzVXvYrdVTBviXqsJtYA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "276811706961-ldoqglthcar2i1d5gvki3kk8nls4u153.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
