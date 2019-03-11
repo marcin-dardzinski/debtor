@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,24 +12,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: Scaffold(
+          appBar: AppBar(
+            title: const Text('Login'),
+          ),
+          body: Login()),
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  const MyHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -42,6 +39,59 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
+class Login extends StatefulWidget {
+  @override
+  LoginState createState() {
+    return LoginState();
+  }
+}
+
+class LoginState extends State<Login> {
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseUser _user;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          RaisedButton(
+            child: const Text('Sign in'),
+            onPressed: _signIn,
+          ),
+          RaisedButton(
+            child: const Text('Log out'),
+            onPressed: _logOut,
+          )
+        ],
+      ),
+    );
+  }
+
+  Future _signIn() async {
+    final account = await _googleSignIn.signIn();
+    final auth = await account.authentication;
+
+    final credentials = GoogleAuthProvider.getCredential(
+        idToken: auth.idToken, accessToken: auth.accessToken);
+    final user = await _auth.signInWithCredential(credentials);
+
+    setState(() {
+      _user = user;
+    });
+  }
+
+  Future _logOut() async {
+    await _googleSignIn.signOut();
+    setState(() {
+      _user = null;
+    });
+  }
+}
+
 class BookList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -49,11 +99,13 @@ class BookList extends StatelessWidget {
       stream:
           Firestore.instance.collection('books').orderBy('title').snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
 
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
-            return Text('Waiting');
+            return const Text('Waiting');
           default:
             final books = snapshot.data.documents;
             return ListView.builder(
