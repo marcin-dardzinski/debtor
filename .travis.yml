@@ -1,54 +1,58 @@
-jdk: oraclejdk8
-
-before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-
-cache:
-  directories:
-    - $FLUTTER_HOME
-    
-    - $HOME/android-sdk
-    - $HOME/android-sdk-dl
-
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
-
-    - $HOME/.android/build-cache
-    - $HOME/.pub-cache
-
-install:
-  - if test ! -e $FLUTTER_HOME/.gitignore; then git clone https://github.com/flutter/flutter.git -b beta $FLUTTER_HOME; fi
-  
-  - mkdir -p $HOME/android-sdk-dl
-  - if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then wget -O $HOME/android-sdk-dl/sdk-tools.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip; fi
-  - unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d $HOME/android-sdk
-
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'tools' > /dev/null
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platform-tools' > /dev/null
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;28.0.3' > /dev/null
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-28' > /dev/null
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null
-
 env:
   global:
-    - FLUTTER_HOME=$HOME/flutter
-    - ANDROID_HOME=$HOME/android-sdk
-
+  - FLUTTER_HOME=$HOME/flutter
+  - ANDROID_HOME=$HOME/android-sdk
 os:
-  - linux
+- linux
 sudo: false
 addons:
   apt:
-    # Flutter depends on /usr/lib/x86_64-linux-gnu/libstdc++.so.6 version GLIBCXX_3.4.18
     sources:
-      - ubuntu-toolchain-r-test # if we don't specify this, the libstdc++6 we get is the wrong version
+    - ubuntu-toolchain-r-test
     packages:
-      - libstdc++6
-      - fonts-droid
+    - libstdc++6
+    - lib32stdc++6
+    - fonts-droid
+
+jdk: oraclejdk8
+
+before_cache:
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+  - "$HOME/android-sdk"
+  - "$HOME/android-sdk-dl"
+  
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+  
+  - "$HOME/.android/build-cache"
+  - "$HOME/.pub-cache"
+
+before_install:
+- openssl aes-256-cbc -K $encrypted_b18bf1260431_key -iv $encrypted_b18bf1260431_iv
+  -in android/debtor.jks.enc -out android/debtor.jks -d
+
+install:
+
+- mkdir -p $HOME/android-sdk-dl
+- if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then wget -O $HOME/android-sdk-dl/sdk-tools.zip
+  https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip; fi
+- unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d $HOME/android-sdk
+
+- echo y | $HOME/android-sdk/tools/bin/sdkmanager 'tools' > /dev/null
+- echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platform-tools' > /dev/null
+- echo y | $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;28.0.3' > /dev/null
+- echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-28' > /dev/null
+- echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null
+
 before_script:
-  - $FLUTTER_HOME/bin/flutter doctor
-  - yes | $FLUTTER_HOME/bin/flutter doctor --android-licenses
+- git clone https://github.com/flutter/flutter.git -b beta 
+- "./flutter/bin/flutter doctor"
+- yes | ./flutter/bin/flutter doctor --android-licenses
 
 script:
-  - $FLUTTER_HOME/bin/flutter build apk --release
+- "./flutter/bin/flutter build apk --release"
+
