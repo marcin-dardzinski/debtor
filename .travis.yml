@@ -43,7 +43,7 @@ before_script:
 - git clone https://github.com/flutter/flutter.git -b beta
 - "./flutter/bin/flutter doctor"
 - yes | ./flutter/bin/flutter doctor --android-licenses
-- export keystore_password = $kestore_password # spell check fix, cannot rename in travis
+- export keystore_password=$kestore_password # spell check fix, cannot rename in travis
 script:
 - "./flutter/bin/flutter build apk --release --build-number=$TRAVIS_BUILD_NUMBER"
 deploy:
