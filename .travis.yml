@@ -5,6 +5,7 @@ env:
 os:
 - linux
 sudo: false
+language: dart
 addons:
   apt:
     sources:
@@ -13,46 +14,42 @@ addons:
     - libstdc++6
     - lib32stdc++6
     - fonts-droid
-
 jdk: oraclejdk8
-
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-
 cache:
   directories:
   - "$HOME/android-sdk"
   - "$HOME/android-sdk-dl"
-  
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
-  
   - "$HOME/.android/build-cache"
   - "$HOME/.pub-cache"
-
 before_install:
 - openssl aes-256-cbc -K $encrypted_b18bf1260431_key -iv $encrypted_b18bf1260431_iv
   -in android/debtor.jks.enc -out android/debtor.jks -d
-
 install:
-
 - mkdir -p $HOME/android-sdk-dl
 - if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then wget -O $HOME/android-sdk-dl/sdk-tools.zip
   https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip; fi
 - unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d $HOME/android-sdk
-
 - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'tools' > /dev/null
 - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platform-tools' > /dev/null
 - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;28.0.3' > /dev/null
 - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-28' > /dev/null
 - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null
-
 before_script:
-- git clone https://github.com/flutter/flutter.git -b beta 
+- git clone https://github.com/flutter/flutter.git -b beta
 - "./flutter/bin/flutter doctor"
 - yes | ./flutter/bin/flutter doctor --android-licenses
-
+- export keystore_password = $kestore_password # spell check fix, cannot rename in travis
 script:
-- "./flutter/bin/flutter build apk --release"
-
+- "./flutter/bin/flutter build apk --release --build-number=$TRAVIS_BUILD_NUMBER"
+deploy:
+  provider: releases
+  api_key:
+    secure: axy8gZHGNUica14iywNryC89LfMcdRBmOhBJ15l5VokGNU0eldRTfByoot2zBpOrGce66TE3DbizM4d1Vyw9CMqcB2uYv4pQ3KJ0iqvY6XVR0eicv4wtpg+0EVgvn2LjhjumM8fGg9M6tWCqAEsyiihfLAe29NOWWPRVxJuHfdRHGJ/WCEXE1DJEj9nIEEDr1L4aVoWbjFr12J8DG4GM8Rn45bhTC6kdHf7+4I8Zjurjcc+tv9RxU8u0xVKubsJ9wzvOSTzHCSp0W6NSITXFPEGa91BZUoCjQ8AbCCAMJVOCJrz7hUaVGKAs8aZzqFv7H9T7VFGmVrqWmf1wsl3wrzgeh2u+aVjdJDlUKzMPPT7H4zJmh1Zhm2BcR6yaknSbbrJ4TG6NNnyTakJAOUguI73NYCtH/JMpWxh+HSXCvarVphca11NviXiPvsatwELz23DWqaoYeqpGGo/A4zmU6oxnviBvQc4NUbuL64ShKnqchlOetFcMEw+5CSubPS1ev6PiZetTsat12LOhdy2+VUp5l9VBqMnRjxn3+jaPrfI+OTqblv99+ieCcPuUcYynIy8mc6UP2UmJVO64ilrZXqR+IsIx71zxdIPNEz9Lr98mRG6KPkaxxHiLdiBis5xu5L6+DHVfnT/NC8pji6Ka1Zk+5VPIhHZ/pGVgPIRKguA=
+  file: build/app/outputs/apk/release/*.apk
+  on:
+    repo: marcin-dardzinski/debtor
