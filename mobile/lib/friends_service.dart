@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:debtor/models/user.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:debtor/authenticator.dart';
 
 class FriendsService {
   factory FriendsService() {
@@ -27,6 +29,35 @@ class FriendsService {
   }
   static final FriendsService _instance = FriendsService._internal();
 
+  final _authenticator = Authenticator();
   final _friendsState = BehaviorSubject<List<User>>();
   Stream<List<User>> get friends => _friendsState.stream;
+
+  Future<List<User>> searchFriends(String email) async {
+    if (email.isEmpty) {
+      return <User>[];
+    }
+
+    final currentUser = (await _authenticator.loggedInUser.first).user;
+
+    final emailLow = email;
+    final last = email.codeUnitAt(email.length - 1) + 1;
+    final emailHigh =
+        email.substring(0, email.length - 1) + String.fromCharCode(last);
+
+    final results = await Firestore.instance
+        .collection('users')
+        .where(
+          'email',
+          isLessThan: emailHigh,
+          isGreaterThanOrEqualTo: emailLow,
+        )
+        .getDocuments();
+
+    return results.documents
+        .where((u) => u.documentID != currentUser.uid)
+        .map((u) => User(u.documentID, u['email'].toString(),
+            u['name'].toString(), u['avatar'].toString()))
+        .toList();
+  }
 }

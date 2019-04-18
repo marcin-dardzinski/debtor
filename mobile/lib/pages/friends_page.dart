@@ -33,7 +33,7 @@ class FriendsPage extends StatelessWidget {
                   itemBuilder: (ctx, idx) {
                     return idx < snapshot.data.length
                         ? _friendTile(snapshot.data[idx])
-                        : _addFriendButton();
+                        : _addFriendButton(ctx);
                   }),
             );
           },
@@ -52,13 +52,19 @@ class FriendsPage extends StatelessWidget {
     );
   }
 
-  Widget _addFriendButton() {
+  Widget _addFriendButton(BuildContext ctx) {
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 48),
       child: RaisedButton(
         child: const Text('Add friend'),
-        onPressed: () {},
+        onPressed: () {
+          showSearch(
+            context: ctx,
+            delegate: AddFriendDelegate(),
+            query: '',
+          );
+        },
       ),
     );
   }
@@ -72,7 +78,6 @@ class CurrentUserBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
-      // color: Colors.grey,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -111,6 +116,75 @@ class CurrentUserBar extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class AddFriendDelegate extends SearchDelegate<User> {
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) => _searchFriends(context);
+
+  @override
+  Widget buildSuggestions(BuildContext context) => _searchFriends(context);
+
+  Widget _searchFriends(BuildContext context) {
+    if (query.length < 3) {
+      return Container();
+    }
+
+    return FutureBuilder<List<User>>(
+      future: friends.searchFriends(query),
+      builder: (ctx, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final matches = snapshot.data;
+
+        if (matches.isEmpty) {
+          return const Center(child: Text('No users found'));
+        }
+
+        return ListView.builder(
+          itemCount: matches.length,
+          itemBuilder: (ctx, idx) => _friendTile(matches[idx], ctx),
+        );
+      },
+    );
+  }
+
+  Widget _friendTile(User user, BuildContext ctx) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundImage: CachedNetworkImageProvider(user.avatar),
+      ),
+      title: Text(user.name),
+      subtitle: Text(user.email),
+      onTap: () {
+        close(ctx, user);
+      },
     );
   }
 }

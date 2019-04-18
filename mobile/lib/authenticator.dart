@@ -19,7 +19,7 @@ class Authenticator {
   Authenticator._internal();
   static final Authenticator _instance = Authenticator._internal();
 
-  final _loginState = PublishSubject<AuthenticationState>();
+  final _loginState = BehaviorSubject<AuthenticationState>();
   final _firebaseAuth = FirebaseAuth.instance;
   final _googleSignIn = GoogleSignIn();
 
