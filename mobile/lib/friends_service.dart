@@ -1,37 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:debtor/models/user.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:debtor/authenticator.dart';
 
 class FriendsService {
   factory FriendsService() {
     return _instance;
   }
-  FriendsService._internal() {
-    _friendsState.sink.add([
-      User('id', 'Jolene Woodard', 'jolenewoodard@zillacom.com',
-          'http://i.pravatar.cc/227'),
-      User('id', 'Debora Nicholson', 'deboranicholson@zillacom.com',
-          'http://i.pravatar.cc/245'),
-      User('id', 'Rogers Molina', 'rogersmolina@zillacom.com',
-          'http://i.pravatar.cc/233'),
-      User('id', 'Waters Navarro', 'watersnavarro@zillacom.com',
-          'http://i.pravatar.cc/242'),
-      // User('id', 'Lauri Lyons', 'laurilyons@zillacom.com',
-      //     'http://i.pravatar.cc/247'),
-      // User('id', 'Conley Welch', 'conleywelch@zillacom.com',
-      //     'http://i.pravatar.cc/248'),
-      // User('id', 'Lauri Lyons', 'laurilyons@zillacom.com',
-      //     'http://i.pravatar.cc/247'),
-      // User('id', 'Conley Welch', 'conleywelch@zillacom.com',
-      //     'http://i.pravatar.cc/248'),
-    ].toList());
-  }
-  static final FriendsService _instance = FriendsService._internal();
+  FriendsService._internal();
 
+  static final FriendsService _instance = FriendsService._internal();
   final _authenticator = Authenticator();
-  final _friendsState = BehaviorSubject<List<User>>();
-  Stream<List<User>> get friends => _friendsState.stream;
+
+  Stream<List<User>> get friends => Firestore.instance
+      .collection('users')
+      .where('friends',
+          arrayContains: Firestore.instance
+              .collection('users')
+              .document('gspiUrauiDcZDBMJYEG0XLPl0Nr1'))
+      .snapshots()
+      .map((snap) => snap.documents.map(_toUser).toList());
+
+  Future<void> addFriend(User user) {
+    return CloudFunctions.instance.call(
+      functionName: 'addFriend',
+      parameters: <String, dynamic>{
+        'friend': user.uid,
+      },
+    );
+  }
 
   Future<List<User>> searchFriends(String email) async {
     if (email.isEmpty) {
@@ -56,8 +53,12 @@ class FriendsService {
 
     return results.documents
         .where((u) => u.documentID != currentUser.uid)
-        .map((u) => User(u.documentID, u['email'].toString(),
-            u['name'].toString(), u['avatar'].toString()))
+        .map(_toUser)
         .toList();
+  }
+
+  User _toUser(DocumentSnapshot u) {
+    return User(u.documentID, u['email'].toString(), u['name'].toString(),
+        u['avatar'].toString());
   }
 }
