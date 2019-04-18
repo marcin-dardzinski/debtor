@@ -1,5 +1,5 @@
 import 'package:debtor/authenticator.dart';
-import 'package:debtor/home_page.dart';
+import 'package:debtor/pages/books_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -34,6 +34,64 @@ class MyApp extends StatelessWidget {
               )
         });
   }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _HomePageState();
+  }
+}
+
+class _HomePageState extends State<HomePage> {
+  int _currentIdx = 0;
+  final List<_HomePageEntry> _contents = [
+    _HomePageEntry(BookListPage(), 'Home', Icons.home),
+    _HomePageEntry(Container(), 'Friends', Icons.people),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Debtor'),
+        actions: [
+          PopupMenuButton<bool>(
+            itemBuilder: (ctx) => [
+                  const PopupMenuItem(
+                    child: Text('Logout'),
+                    value: true,
+                  )
+                ],
+            onSelected: (_) => authenticator.logout(),
+          )
+        ],
+      ),
+      body: _contents[_currentIdx].body,
+      bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIdx,
+          onTap: _onTabTapped,
+          items: _contents.map(_toNavigationItem).toList()),
+    );
+  }
+
+  BottomNavigationBarItem _toNavigationItem(_HomePageEntry entry) {
+    return BottomNavigationBarItem(
+        icon: Icon(entry.icon), title: Text(entry.title));
+  }
+
+  void _onTabTapped(int idx) {
+    setState(() {
+      _currentIdx = idx;
+    });
+  }
+}
+
+class _HomePageEntry {
+  const _HomePageEntry(this.body, this.title, this.icon);
+  final Widget body;
+  final String title;
+  final IconData icon;
 }
 
 class LoginPage extends StatelessWidget {
