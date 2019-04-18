@@ -1,4 +1,5 @@
 import 'package:debtor/authenticator.dart';
+import 'package:debtor/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -28,9 +29,7 @@ class MyApp extends StatelessWidget {
                     return Loader();
                   }
 
-                  return snapshot.data.isSignedIn
-                      ? BookListPage()
-                      : LoginPage();
+                  return snapshot.data.isSignedIn ? HomePage() : LoginPage();
                 },
               )
         });

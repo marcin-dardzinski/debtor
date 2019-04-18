@@ -18,7 +18,8 @@ class Authenticator {
 
   Future<void> init() async {
     if (await _googleSignIn.isSignedIn()) {
-      await _login(_googleSignIn.currentUser);
+      final user = await _googleSignIn.signInSilently();
+      await _login(user);
     } else {
       _loginState.add(const AuthenticationState(null));
     }
