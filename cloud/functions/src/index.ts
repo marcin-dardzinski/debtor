@@ -10,6 +10,6 @@ export const addUserToFirestore = functions.auth.user().onCreate((user, ctx) => 
     return db
         .collection('users')
         .doc(uid)
-        .set({ email, displayName, avatar: photoURL })
+        .set({ email, name: displayName, avatar: photoURL })
         .catch(console.error);
 });
