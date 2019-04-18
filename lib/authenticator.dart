@@ -30,6 +30,7 @@ class Authenticator {
       return false;
     }
 
+    _loginState.add(null);
     await _login(user);
     return true;
   }

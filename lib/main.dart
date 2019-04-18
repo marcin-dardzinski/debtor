@@ -1,8 +1,6 @@
 import 'package:debtor/authenticator.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 Authenticator authenticator;
 
@@ -76,59 +74,6 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class Login extends StatefulWidget {
-  @override
-  LoginState createState() {
-    return LoginState();
-  }
-}
-
-class LoginState extends State<Login> {
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  FirebaseUser _user;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          RaisedButton(
-            child: const Text('Sign in'),
-            onPressed: _signIn,
-          ),
-          RaisedButton(
-            child: const Text('Log out'),
-            onPressed: _logOut,
-          )
-        ],
-      ),
-    );
-  }
-
-  Future _signIn() async {
-    final account = await _googleSignIn.signIn();
-    final auth = await account.authentication;
-
-    final credentials = GoogleAuthProvider.getCredential(
-        idToken: auth.idToken, accessToken: auth.accessToken);
-    final user = await _auth.signInWithCredential(credentials);
-
-    setState(() {
-      _user = user;
-    });
-  }
-
-  Future _logOut() async {
-    await _googleSignIn.signOut();
-    setState(() {
-      _user = null;
-    });
-  }
-}
-
 class BookListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -138,7 +83,7 @@ class BookListPage extends StatelessWidget {
           actions: [
             PopupMenuButton<bool>(
               itemBuilder: (ctx) => [
-                    PopupMenuItem(
+                    const PopupMenuItem(
                       child: Text('Logout'),
                       value: true,
                     )
