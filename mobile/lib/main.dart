@@ -1,5 +1,5 @@
 import 'package:debtor/authenticator.dart';
-import 'package:debtor/pages/home_page.dart';
+import 'package:debtor/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -36,22 +36,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: BookListPage(),
-    );
-  }
-}
-
 class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -70,56 +54,6 @@ class LoginPage extends StatelessWidget {
 
   void _signIn() {
     authenticator.signIn();
-  }
-}
-
-class BookListPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Debtor'),
-          actions: [
-            PopupMenuButton<bool>(
-              itemBuilder: (ctx) => [
-                    const PopupMenuItem(
-                      child: Text('Logout'),
-                      value: true,
-                    )
-                  ],
-              onSelected: (_) => authenticator.logout(),
-            )
-          ],
-        ),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance
-              .collection('books')
-              .orderBy('title')
-              .snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return const Text('Waiting');
-              default:
-                final books = snapshot.data.documents;
-                return ListView.builder(
-                  itemCount: books.length,
-                  itemBuilder: (ctx, idx) {
-                    final book = books[idx];
-                    return ListTile(
-                      title: Text(book['title']),
-                      subtitle: Text(book['author'] ?? ''),
-                    );
-                  },
-                );
-            }
-          },
-        ));
   }
 }
 
