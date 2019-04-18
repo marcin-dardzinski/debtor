@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:debtor/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rxdart/rxdart.dart';
@@ -8,10 +9,16 @@ class AuthenticationState {
   const AuthenticationState(this.user);
 
   bool get isSignedIn => user != null;
-  final FirebaseUser user;
+  final User user;
 }
 
 class Authenticator {
+  factory Authenticator() {
+    return _instance;
+  }
+  Authenticator._internal();
+  static final Authenticator _instance = Authenticator._internal();
+
   final _loginState = PublishSubject<AuthenticationState>();
   final _firebaseAuth = FirebaseAuth.instance;
   final _googleSignIn = GoogleSignIn();
@@ -50,7 +57,10 @@ class Authenticator {
     final credential = GoogleAuthProvider.getCredential(
         idToken: auth.idToken, accessToken: auth.accessToken);
 
-    final user = await _firebaseAuth.signInWithCredential(credential);
-    _loginState.sink.add(AuthenticationState(user));
+    final firebaseUser = await _firebaseAuth.signInWithCredential(credential);
+    final user = User(firebaseUser.uid, firebaseUser.email,
+        firebaseUser.displayName, firebaseUser.photoUrl);
+
+    _loginState.add(AuthenticationState(user));
   }
 }

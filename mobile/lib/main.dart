@@ -1,18 +1,20 @@
 import 'package:debtor/authenticator.dart';
 import 'package:debtor/pages/books_page.dart';
+import 'package:debtor/pages/friends_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_stetho/flutter_stetho.dart';
 
 Authenticator authenticator;
 
 void main() {
+  Stetho.initialize();
   authenticator = Authenticator()..init();
   Firestore.instance.settings(timestampsInSnapshotsEnabled: true);
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -47,7 +49,7 @@ class _HomePageState extends State<HomePage> {
   int _currentIdx = 0;
   final List<_HomePageEntry> _contents = [
     _HomePageEntry(BookListPage(), 'Home', Icons.home),
-    _HomePageEntry(Container(), 'Friends', Icons.people),
+    _HomePageEntry(FriendsPage(), 'Friends', Icons.people),
   ];
 
   @override
