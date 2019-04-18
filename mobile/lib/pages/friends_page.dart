@@ -29,11 +29,15 @@ class FriendsPage extends StatelessWidget {
 
             return Expanded(
               child: ListView.builder(
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (ctx, idx) => _friendTile(snapshot.data[idx])),
+                  itemCount: snapshot.data.length + 1,
+                  itemBuilder: (ctx, idx) {
+                    return idx < snapshot.data.length
+                        ? _friendTile(snapshot.data[idx])
+                        : _addFriendButton();
+                  }),
             );
           },
-        )
+        ),
       ],
     );
   }
@@ -45,6 +49,17 @@ class FriendsPage extends StatelessWidget {
       ),
       title: Text(user.name),
       subtitle: Text(user.email),
+    );
+  }
+
+  Widget _addFriendButton() {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 48),
+      child: RaisedButton(
+        child: const Text('Add friend'),
+        onPressed: () {},
+      ),
     );
   }
 }

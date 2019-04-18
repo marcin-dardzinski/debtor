@@ -15,10 +15,14 @@ class FriendsService {
           'http://i.pravatar.cc/233'),
       User('id', 'Waters Navarro', 'watersnavarro@zillacom.com',
           'http://i.pravatar.cc/242'),
-      User('id', 'Lauri Lyons', 'laurilyons@zillacom.com',
-          'http://i.pravatar.cc/247'),
-      User('id', 'Conley Welch', 'conleywelch@zillacom.com',
-          'http://i.pravatar.cc/248'),
+      // User('id', 'Lauri Lyons', 'laurilyons@zillacom.com',
+      //     'http://i.pravatar.cc/247'),
+      // User('id', 'Conley Welch', 'conleywelch@zillacom.com',
+      //     'http://i.pravatar.cc/248'),
+      // User('id', 'Lauri Lyons', 'laurilyons@zillacom.com',
+      //     'http://i.pravatar.cc/247'),
+      // User('id', 'Conley Welch', 'conleywelch@zillacom.com',
+      //     'http://i.pravatar.cc/248'),
     ].toList());
   }
   static final FriendsService _instance = FriendsService._internal();
