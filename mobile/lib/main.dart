@@ -1,4 +1,5 @@
 import 'package:debtor/authenticator.dart';
+import 'package:debtor/pages/books_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -28,29 +29,69 @@ class MyApp extends StatelessWidget {
                     return Loader();
                   }
 
-                  return snapshot.data.isSignedIn
-                      ? BookListPage()
-                      : LoginPage();
+                  return snapshot.data.isSignedIn ? HomePage() : LoginPage();
                 },
               )
         });
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key key, this.title}) : super(key: key);
+class HomePage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _HomePageState();
+  }
+}
 
-  final String title;
+class _HomePageState extends State<HomePage> {
+  int _currentIdx = 0;
+  final List<_HomePageEntry> _contents = [
+    _HomePageEntry(BookListPage(), 'Home', Icons.home),
+    _HomePageEntry(Container(), 'Friends', Icons.people),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: const Text('Debtor'),
+        actions: [
+          PopupMenuButton<bool>(
+            itemBuilder: (ctx) => [
+                  const PopupMenuItem(
+                    child: Text('Logout'),
+                    value: true,
+                  )
+                ],
+            onSelected: (_) => authenticator.logout(),
+          )
+        ],
       ),
-      body: BookListPage(),
+      body: _contents[_currentIdx].body,
+      bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIdx,
+          onTap: _onTabTapped,
+          items: _contents.map(_toNavigationItem).toList()),
     );
   }
+
+  BottomNavigationBarItem _toNavigationItem(_HomePageEntry entry) {
+    return BottomNavigationBarItem(
+        icon: Icon(entry.icon), title: Text(entry.title));
+  }
+
+  void _onTabTapped(int idx) {
+    setState(() {
+      _currentIdx = idx;
+    });
+  }
+}
+
+class _HomePageEntry {
+  const _HomePageEntry(this.body, this.title, this.icon);
+  final Widget body;
+  final String title;
+  final IconData icon;
 }
 
 class LoginPage extends StatelessWidget {
@@ -71,56 +112,6 @@ class LoginPage extends StatelessWidget {
 
   void _signIn() {
     authenticator.signIn();
-  }
-}
-
-class BookListPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Debtor'),
-          actions: [
-            PopupMenuButton<bool>(
-              itemBuilder: (ctx) => [
-                    const PopupMenuItem(
-                      child: Text('Logout'),
-                      value: true,
-                    )
-                  ],
-              onSelected: (_) => authenticator.logout(),
-            )
-          ],
-        ),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance
-              .collection('books')
-              .orderBy('title')
-              .snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return const Text('Waiting');
-              default:
-                final books = snapshot.data.documents;
-                return ListView.builder(
-                  itemCount: books.length,
-                  itemBuilder: (ctx, idx) {
-                    final book = books[idx];
-                    return ListTile(
-                      title: Text(book['title']),
-                      subtitle: Text(book['author'] ?? ''),
-                    );
-                  },
-                );
-            }
-          },
-        ));
   }
 }
 
