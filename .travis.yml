@@ -26,6 +26,7 @@ cache:
   - "$HOME/.gradle/wrapper/"
   - "$HOME/.android/build-cache"
   - "$HOME/.pub-cache"
+  - "$FLUTTER_HOME"
 before_install:
 - openssl aes-256-cbc -K $encrypted_b18bf1260431_key -iv $encrypted_b18bf1260431_iv
   -in mobile/android/debtor.jks.enc -out mobile/android/debtor.jks -d
@@ -39,14 +40,15 @@ install:
 - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;28.0.3' > /dev/null
 - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-28' > /dev/null
 - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null
+- if test -e $FLUTTER_HOME; then git clone https://github.com/flutter/flutter.git -b beta $FLUTTER_HOME; fi
+- "$FLUTTER_HOME/bin/flutter doctor"
+
 before_script:
-- git clone https://github.com/flutter/flutter.git -b beta
-- "./flutter/bin/flutter doctor"
-- yes | ./flutter/bin/flutter doctor --android-licenses
+- yes | $FLUTTER_HOME/bin/flutter doctor --android-licenses
 - export keystore_password=$kestore_password # spell check fix, cannot rename in travis
 script:
 - "cd mobile"
-- "../flutter/bin/flutter build apk --release --build-number=$TRAVIS_BUILD_NUMBER"
+- "$FLUTTER_HOME/bin/flutter build apk --release --build-number=$TRAVIS_BUILD_NUMBER"
 # deploy:
 #   provider: releases
 #   api_key:
