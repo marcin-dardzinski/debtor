@@ -28,7 +28,7 @@ cache:
   - "$HOME/.pub-cache"
 before_install:
 - openssl aes-256-cbc -K $encrypted_b18bf1260431_key -iv $encrypted_b18bf1260431_iv
-  -in mobile/android/debtor.jks.enc -out android/debtor.jks -d
+  -in mobile/android/debtor.jks.enc -out mobile/android/debtor.jks -d
 install:
 - mkdir -p $HOME/android-sdk-dl
 - if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then wget -O $HOME/android-sdk-dl/sdk-tools.zip
