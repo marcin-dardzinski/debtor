@@ -28,7 +28,7 @@ cache:
   - "$HOME/.pub-cache"
 before_install:
 - openssl aes-256-cbc -K $encrypted_b18bf1260431_key -iv $encrypted_b18bf1260431_iv
-  -in android/debtor.jks.enc -out android/debtor.jks -d
+  -in mobile/android/debtor.jks.enc -out android/debtor.jks -d
 install:
 - mkdir -p $HOME/android-sdk-dl
 - if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then wget -O $HOME/android-sdk-dl/sdk-tools.zip
@@ -45,7 +45,8 @@ before_script:
 - yes | ./flutter/bin/flutter doctor --android-licenses
 - export keystore_password=$kestore_password # spell check fix, cannot rename in travis
 script:
-- "./flutter/bin/flutter build apk --release --build-number=$TRAVIS_BUILD_NUMBER"
+- "cd mobile"
+- "../flutter/bin/flutter build apk --release --build-number=$TRAVIS_BUILD_NUMBER"
 # deploy:
 #   provider: releases
 #   api_key:
