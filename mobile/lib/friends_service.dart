@@ -12,14 +12,16 @@ class FriendsService {
   static final FriendsService _instance = FriendsService._internal();
   final _authenticator = Authenticator();
 
-  Stream<List<User>> get friends => Firestore.instance
-      .collection('users')
-      .where('friends',
-          arrayContains: Firestore.instance
-              .collection('users')
-              .document('gspiUrauiDcZDBMJYEG0XLPl0Nr1'))
-      .snapshots()
-      .map((snap) => snap.documents.map(_toUser).toList());
+  Stream<List<User>> get friends =>
+      _authenticator.loggedInUser.asyncExpand((user) {
+        return Firestore.instance
+            .collection('users')
+            .where('friends',
+                arrayContains: Firestore.instance
+                    .collection('users')
+                    .document(user.user.uid))
+            .snapshots();
+      }).map((snap) => snap.documents.map(_toUser).toList());
 
   Future<void> addFriend(User user) {
     return CloudFunctions.instance.call(

@@ -153,7 +153,7 @@ class AddFriendDelegate extends SearchDelegate<User> {
   Widget buildSuggestions(BuildContext context) => _searchFriends(context);
 
   Widget _searchFriends(BuildContext context) {
-    if (query.length < 3) {
+    if (query.length < 2) {
       return Container();
     }
 
