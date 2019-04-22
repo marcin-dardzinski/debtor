@@ -1,6 +1,8 @@
 import 'package:decimal/decimal.dart';
 class Expense {
-  Decimal amount;
-  String name;
-  String description;
+  final Decimal amount;
+  final String name;
+  final String description;
+
+  Expense(this.amount, this.name, this.description);
 }
