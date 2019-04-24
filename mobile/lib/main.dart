@@ -1,5 +1,8 @@
 import 'package:debtor/authenticator.dart';
 import 'package:debtor/pages/books_page.dart';
+import 'package:debtor/pages/debts_page.dart';
+import 'package:debtor/pages/event_form.dart';
+import 'package:debtor/pages/events_page.dart';
 import 'package:debtor/pages/friends_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -50,6 +53,7 @@ class _HomePageState extends State<HomePage> {
   final List<_HomePageEntry> _contents = [
     _HomePageEntry(BookListPage(), 'Home', Icons.home),
     _HomePageEntry(FriendsPage(), 'Friends', Icons.people),
+    _HomePageEntry(EventsPage(), 'Events', Icons.event),
   ];
 
   @override

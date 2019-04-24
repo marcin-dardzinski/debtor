@@ -1,6 +1,8 @@
+import 'package:debtor/friends_service.dart';
 import 'package:debtor/models/event.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/expense_share.dart';
+import 'package:debtor/models/user.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
@@ -11,14 +13,13 @@ class EventForm extends StatefulWidget {
   }
 }
 
+FriendsService friends = FriendsService();
+
 class EventFormState extends State<EventForm> {
   final _formKey = GlobalKey<FormState>();
+  var l = List<User>();
   final event = Event('Test Event', <Expense>[
-    Expense(Decimal.fromInt(20), 'Expense 1', 'blank'),
-    Expense(Decimal.fromInt(30), 'Expense 2', 'blank')
   ], <ExpenseShare>[
-    ExpenseShare('Person 1', Decimal.fromInt(15)),
-    ExpenseShare('Person 2', Decimal.fromInt(25)),
   ]);
 
   @override
@@ -58,6 +59,21 @@ class EventFormState extends State<EventForm> {
         child: ListTile(
           leading: const Icon(Icons.add),
           title: const Text('Add payer'),
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext ctx) {
+                return AlertDialog(
+                  title: const Text('Select friends:'),
+                  content: Column(
+                    children: <Widget>[
+                      _buildFriendsList()
+                    ],
+                   ),
+                );
+              }
+            );
+          },
         ),
         decoration: BoxDecoration(
           color: Colors.grey[200],
@@ -140,5 +156,35 @@ class EventFormState extends State<EventForm> {
         Expanded(child: Container(child: buildExpensesList(context)));
 
     return _buildCardGroup(context, header, content, footer);
+  }
+
+  Widget _buildFriendsList() {
+    return StreamBuilder<List<User>>(
+          stream: friends.friends,
+          builder: (ctx, snapshot) {
+            if (!snapshot.hasData) {
+              return Container();
+            }
+
+            return Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (ctx, idx) {
+                return CheckboxListTile(
+                      title: Text(snapshot.data[idx].name),
+                      value: l.contains(snapshot.data[idx]),
+                      onChanged: (bool value) {
+                        setState(() {
+                          l.contains(snapshot.data[idx]) ?
+                          l.add(snapshot.data[idx]) :
+                          l.remove(snapshot.data[idx]);
+                        });
+                      }
+                    );
+                  }),
+            );
+          },
+        );
   }
 }
