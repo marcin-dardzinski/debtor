@@ -9,16 +9,20 @@ Authenticator authenticator = Authenticator();
 FriendsService friends = FriendsService();
 
 class FriendsPage extends StatelessWidget {
-  final mockUser = User('adsf', 'andrzej@duda.com', 'Andrzej Duda',
-      'https://pbs.twimg.com/profile_images/556495456805453826/wKEOCDN0_400x400.png');
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CurrentUserBar(
-          user: mockUser,
-        ),
+        StreamBuilder<AuthenticationState>(
+            stream: authenticator.loggedInUser,
+            builder: (ctx, snapshot) {
+              if (snapshot.hasData && snapshot.data.user != null) {
+                return CurrentUserBar(
+                  user: snapshot.data.user,
+                );
+              }
+              return Container();
+            }),
         const Divider(),
         StreamBuilder<List<User>>(
           stream: friends.friends,
