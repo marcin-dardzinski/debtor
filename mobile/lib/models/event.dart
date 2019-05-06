@@ -1,10 +1,10 @@
 import 'package:debtor/models/expense.dart';
-import 'package:debtor/models/expense_share.dart';
+import 'package:debtor/models/user.dart';
 
 class Event {
   final String name;
+  final List<User> participants;
   final List<Expense> expenseList;
-  final List<ExpenseShare> expenceShareList;
 
-  Event(this.name, this.expenseList, this.expenceShareList);
+  Event(this.name, this.expenseList, this.participants);
 }

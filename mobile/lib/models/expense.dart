@@ -1,8 +1,13 @@
+import 'package:debtor/models/user.dart';
 import 'package:decimal/decimal.dart';
 class Expense {
-  final Decimal amount;
+  final String uid;
   final String name;
   final String description;
+  final Decimal amount;
+  final User payer;
+  final User borrower;
 
-  Expense(this.amount, this.name, this.description);
+  Expense(this.uid, this.name, this.description, this.amount, this.payer, this.borrower);
+
 }

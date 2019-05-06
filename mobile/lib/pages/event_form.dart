@@ -1,7 +1,6 @@
 import 'package:debtor/friends_service.dart';
 import 'package:debtor/models/event.dart';
 import 'package:debtor/models/expense.dart';
-import 'package:debtor/models/expense_share.dart';
 import 'package:debtor/models/user.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +17,7 @@ FriendsService friends = FriendsService();
 class EventFormState extends State<EventForm> {
   final _formKey = GlobalKey<FormState>();
   var l = List<User>();
-  final event = Event('Test Event', <Expense>[
-  ], <ExpenseShare>[
-  ]);
+  final event = Event("AAA", <Expense>[], <User>[]);
 
   @override
   Widget build(BuildContext context) {
@@ -88,15 +85,15 @@ class EventFormState extends State<EventForm> {
   Widget _buildPayersList(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: event.expenceShareList.length,
+      itemCount: 10,
       itemBuilder: (BuildContext ctx, int index) {
         return ListTile(
             title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text('${event.expenceShareList[index].person}',
+            Text('AAA',
                 style: TextStyle(fontSize: 14)),
-            Text('${event.expenceShareList[index].amount} \$',
+            Text('AAA \$',
                 style: TextStyle(fontSize: 14)),
           ],
         ));
