@@ -17,7 +17,7 @@ FriendsService friends = FriendsService();
 class EventFormState extends State<EventForm> {
   final _formKey = GlobalKey<FormState>();
   var l = List<User>();
-  final event = Event("AAA", <Expense>[], <User>[]);
+  final event = Event("AA", "AAA", <User>[], <Expense>[]);
 
   @override
   Widget build(BuildContext context) {
@@ -104,30 +104,30 @@ class EventFormState extends State<EventForm> {
   Widget buildExpensesList(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: event.expenseList.length,
+      itemCount: event.expenses.length,
       itemBuilder: (BuildContext ctx, int index) {
         return Dismissible(
           child: ListTile(
               title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text('${event.expenseList[index].name}',
+              Text('${event.expenses[index].name}',
                   style: TextStyle(fontSize: 14)),
-              Text('${event.expenseList[index].amount} \$',
+              Text('${event.expenses[index].amount} \$',
                   style: TextStyle(fontSize: 14)),
             ],
           )),
-          key: ObjectKey(event.expenseList[index]),
+          key: ObjectKey(event.expenses[index]),
           onDismissed: (direction) {
-            var item = event.expenseList.elementAt(index);
-            event.expenseList.removeAt(index);
+            var item = event.expenses.elementAt(index);
+            event.expenses.removeAt(index);
             //To show a snackbar with the UNDO button
             Scaffold.of(context).showSnackBar(SnackBar(
                 content: Text("Deleted expense"),
                 action: SnackBarAction(
                     label: "Undo",
                     onPressed: () {
-                      event.expenseList.insert(index, item);
+                      event.expenses.insert(index, item);
                     })));
           },
         );

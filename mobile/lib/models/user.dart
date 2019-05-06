@@ -14,4 +14,9 @@ class User {
   String name;
   String email;
   String avatar;
+
+  @override
+  String toString() {
+    return name;
+  }
 }
