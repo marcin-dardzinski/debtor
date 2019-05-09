@@ -10,6 +10,7 @@ class User {
     email = document['email'].toString();
     avatar = document['avatar'].toString();
   }
+
   String uid;
   String name;
   String email;

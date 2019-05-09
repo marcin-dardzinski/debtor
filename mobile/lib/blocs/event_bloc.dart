@@ -7,4 +7,7 @@ class EventBloc {
 
   Observable<List<Event>> get events => _repository.events;
   
+  void updateEvent(Event event) {
+    _repository.updateEvent(event);
+  }
 }

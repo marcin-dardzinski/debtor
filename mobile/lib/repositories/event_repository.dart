@@ -10,11 +10,26 @@ class EventRepository {
   final _firestore = Firestore.instance;
   final _authenticator = Authenticator();
 
+
+  Future updateEvent(Event event) async {
+    final expenses = event.expenses.map((Expense e) => e.toMap()).toList();
+    print(expenses);
+    await _firestore.collection('events')
+              .document(event.uid)
+              .updateData( <String, dynamic>{'expenses': expenses});
+  }
+
   Stream<List<Event>> get events {
     final events = _authenticator.loggedInUser.asyncExpand(_fetchUserEvents)
                                               .asyncMap((snapshot) => Future.wait(snapshot.documents.map(convertDocumentToEvent)));
 
     return Observable(events);
+  }
+
+  Stream<Event> getSpecificEvent(Event selectedEvent) {
+    final event = _firestore.collection('users').document(selectedEvent.uid).snapshots().asyncMap((document) async => await convertDocumentToEvent(document));
+
+    return Observable(event);
   }
 
   Stream<QuerySnapshot> _fetchUserEvents(AuthenticationState user) {
@@ -38,14 +53,12 @@ class EventRepository {
   }
   
   Expense _retrieveExpense (dynamic expenseMap, List<User> eventUsers) {
-    DocumentReference w;
-    const expenseId = "placeholder";
     final amount = Decimal.fromInt(expenseMap['amount']);
     final description = expenseMap['description'].toString();
     final name = expenseMap['name'].toString();
     final borrower = eventUsers.firstWhere((User u) => u.uid == expenseMap['borrower'].documentID);
     final payer =  eventUsers.firstWhere((User u) => u.uid == expenseMap['payer'].documentID);
 
-    return Expense(expenseId, name, description, amount, payer, borrower);
+    return Expense(name, description, amount, payer, borrower);
   }
 }

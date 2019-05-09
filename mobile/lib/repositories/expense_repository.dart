@@ -29,12 +29,11 @@ class ExpenseRepository {
   }
 
   Future<Expense> _fetchExpense(DocumentSnapshot document) async {
-    final expenseId = document.documentID;
     final name = document['name'].toString();
     final description = document['description'].toString();
     final amount = Decimal.fromInt(document['amount']);
     final payer = User.fromDocument(await document['payer'].get());
     final borrower = User.fromDocument(await document['payer'].get());
-    return Expense(expenseId, name, description, amount, payer, borrower);
+    return Expense(name, description, amount, payer, borrower);
   }
 }
