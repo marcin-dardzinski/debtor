@@ -6,5 +6,4 @@ class ExpenseBloc {
   final _repository = ExpenseRepository();
 
   Observable<List<Expense>> get expenses => Observable(_repository.expenses);
-  
 }

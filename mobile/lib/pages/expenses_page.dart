@@ -16,6 +16,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
   void dispose() {
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Expense>>(
@@ -32,8 +33,9 @@ class _ExpensesPageState extends State<ExpensesPage> {
         return ListView.builder(
           itemCount: snapshot.data.length,
           itemBuilder: (ctx, idx) {
-            return ListTile(title: Text(snapshot.data[idx].name),
-            subtitle: Text(snapshot.data[idx].payer.name.toString()));
+            return ListTile(
+                title: Text(snapshot.data[idx].name),
+                subtitle: Text(snapshot.data[idx].payer.name.toString()));
           },
         );
       },

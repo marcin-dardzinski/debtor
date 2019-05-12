@@ -1,5 +1,6 @@
 import 'package:debtor/models/user.dart';
 import 'package:decimal/decimal.dart';
+
 class Expense {
   String name;
   String description;

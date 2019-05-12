@@ -1,12 +1,12 @@
 import 'package:debtor/blocs/event_bloc.dart';
 import 'package:debtor/models/event.dart';
+import 'package:debtor/models/expense.dart';
+import 'package:debtor/models/user.dart';
 import 'package:debtor/pages/event_details_page.dart';
-import 'package:debtor/pages/event_form.dart';
 import 'package:debtor/pages/loader.dart';
 import 'package:debtor/providers/event_bloc_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-
 
 class EventsPage extends StatefulWidget {
   EventsPage({Key key}) : super(key: key);
@@ -31,22 +31,15 @@ class _EventsPageState extends State<EventsPage> {
           child: Icon(Icons.add),
           onPressed: () {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (ctx) => Scaffold(
-                          resizeToAvoidBottomPadding: false,
-                          appBar: AppBar(
-                            title: const Text("Add event"),
-                            actions: <Widget>[
-                              IconButton(
-                                icon: Icon(Icons.check),
-                                onPressed: () {},
-                              )
-                            ],
-                          ),
-                          backgroundColor: Colors.grey[300],
-                          body: EventForm(),
-                        )));
+                    context,
+                    MaterialPageRoute<Event>(
+                        builder: (ctx) => EventDetailsPage(
+                            event: Event("", "Yayyy", <User>[], <Expense>[]))))
+                .then((updatedEvent) {
+              if (updatedEvent != null) {
+                _bloc.addEvent(updatedEvent);
+              }
+            });
           }),
     );
   }
@@ -73,12 +66,16 @@ class _EventsPageState extends State<EventsPage> {
   ListTile _eventToListTile(Event event) {
     return ListTile(
         title: Text(event.name),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (ctx) => EventDetailsPage(event: event)
-          )
-         )
-      );
+        onTap: () {
+          Navigator.push(
+                  context,
+                  MaterialPageRoute<Event>(
+                      builder: (ctx) => EventDetailsPage(event: event)))
+              .then((updatedEvent) {
+            if (updatedEvent != null) {
+              _bloc.updateEvent(updatedEvent);
+            }
+          });
+        });
   }
 }

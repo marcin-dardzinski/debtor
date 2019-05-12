@@ -7,7 +7,9 @@ class ExpenseBlocProvider extends InheritedWidget {
   final bloc = ExpenseBloc();
 
   static ExpenseBloc of(BuildContext context) {
-    return (context.inheritFromWidgetOfExactType(ExpenseBlocProvider) as ExpenseBlocProvider).bloc;
+    return (context.inheritFromWidgetOfExactType(ExpenseBlocProvider)
+            as ExpenseBlocProvider)
+        .bloc;
   }
 
   @override

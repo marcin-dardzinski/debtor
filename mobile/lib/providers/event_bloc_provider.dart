@@ -8,7 +8,9 @@ class EventBlocProvider extends InheritedWidget {
   final EventBloc bloc = EventBloc();
 
   static EventBloc of(BuildContext context) {
-    return (context.inheritFromWidgetOfExactType(EventBlocProvider) as EventBlocProvider).bloc;
+    return (context.inheritFromWidgetOfExactType(EventBlocProvider)
+            as EventBlocProvider)
+        .bloc;
   }
 
   @override

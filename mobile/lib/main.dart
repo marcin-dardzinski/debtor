@@ -53,7 +53,8 @@ class _HomePageState extends State<HomePage> {
   final List<_HomePageEntry> _contents = [
     _HomePageEntry(ExpensesPage(), 'Home', Icons.home),
     _HomePageEntry(FriendsPage(), 'Friends', Icons.people),
-    _HomePageEntry(EventBlocProvider(child: EventsPage()), 'Events', Icons.event),
+    _HomePageEntry(
+        EventBlocProvider(child: EventsPage()), 'Events', Icons.event),
   ];
 
   @override

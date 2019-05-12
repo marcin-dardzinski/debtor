@@ -1,12 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:debtor/blocs/event_detail_bloc.dart';
 import 'package:debtor/forms/expense_form.dart';
+import 'package:debtor/friends_service.dart';
 import 'package:debtor/models/event.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/pages/loader.dart';
-import 'package:debtor/providers/event_bloc_provider.dart';
 import 'package:flutter/material.dart';
+
+FriendsService friendsService = FriendsService();
 
 class EventDetailsPage extends StatefulWidget {
   EventDetailsBloc bloc;
@@ -45,15 +47,16 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                 Icons.check,
               ),
               onPressed: () {
-                widget.bloc.updateEvent(event);
-                Navigator.pop(context);
-           }),
+                Navigator.pop(context, event);
+              }),
         ]),
-        body: Column(
-          children: <Widget>[
-            Container(child: _buildParticipantsCard(event.participants)),
-            Container(child: _buildExpensesCard(event))
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Container(child: _buildParticipantsCard(event.participants)),
+              Container(child: _buildExpensesCard(event))
+            ],
+          ),
         ));
   }
 
@@ -73,25 +76,70 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     final header = ListTile(
         leading: const Icon(Icons.group), title: const Text('Participants'));
     final footer = ListTile(
-        leading: const Icon(Icons.add), title: const Text('Add participant'));
+      leading: const Icon(Icons.add),
+      title: const Text('Add participant'),
+      onTap: () {
+        showDialog<User>(
+                context: context,
+                builder: (ctx) =>
+                    Container(child: _buildFriendsListSelection(participants)))
+            .then((u) {
+          if (u != null) {
+            widget.bloc.addUser(u);
+          }
+        });
+      },
+    );
 
     return _buildCardGroup(
         header, _buildParticipantsList(participants), footer);
+  }
+
+  Widget _buildFriendsListSelection(List<User> participants) {
+    return AlertDialog(
+        title: const Text("Add friends"),
+        content: StreamBuilder<List<User>>(
+          stream: friendsService.friends,
+          builder: (ctx, snapshot) {
+            if (!snapshot.hasData) {
+              return Loader();
+            }
+            final unaddedFriends = snapshot.data;
+            unaddedFriends.removeWhere(
+                (u) => participants.map((User p) => p.uid).contains(u.uid));
+            return ListView.builder(
+              itemCount: unaddedFriends.length,
+              itemBuilder: (ctx, idx) {
+                return ListTile(
+                    title: Text(unaddedFriends[idx].name),
+                    onTap: () => Navigator.pop(ctx, unaddedFriends[idx]));
+              },
+            );
+          },
+        ));
   }
 
   Widget _buildExpensesCard(Event event) {
     final header = ListTile(
         leading: const Icon(Icons.attach_money), title: const Text('Expenses'));
     final footer = ListTile(
-        leading: const Icon(Icons.add), title: const Text('Add expense'), onTap: () {
-          showDialog<Expense>(
-            context: context,
-            builder: (ctx) => Container(child: AlertDialog(
-              title: const Text("Add expense"),
-              content: ExpenseForm(availableParticipants: event.participants)
-            )
-          )).then((Expense createdExpense) => widget.bloc.addExpense(createdExpense));
-        },);
+      leading: const Icon(Icons.add),
+      title: const Text('Add expense'),
+      onTap: () {
+        showDialog<Expense>(
+                context: context,
+                builder: (ctx) => Container(
+                    child: AlertDialog(
+                        title: const Text('Add expense'),
+                        content: ExpenseForm(
+                            availableParticipants: event.participants))))
+            .then((Expense createdExpense) {
+          if (createdExpense != null) {
+            widget.bloc.addExpense(createdExpense);
+          }
+        });
+      },
+    );
 
     return _buildCardGroup(header, _buildExpensesList(event.expenses), footer);
   }
