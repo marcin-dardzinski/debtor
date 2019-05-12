@@ -9,12 +9,4 @@ class Expense {
 
   Expense(this.name, this.description, this.amount, this.payer, this.borrower);
   Expense.empty();
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'name': name,
-      'description': description,
-      'amount': amount.toInt()
-    };
-  }
 }

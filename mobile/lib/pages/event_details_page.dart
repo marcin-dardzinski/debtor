@@ -46,13 +46,13 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               ),
               onPressed: () {
                 widget.bloc.updateEvent(event);
-                //Navigator.pop(context);
+                Navigator.pop(context);
            }),
         ]),
         body: Column(
           children: <Widget>[
             Container(child: _buildParticipantsCard(event.participants)),
-            Container(child: _buildExpensesCard(event.expenses))
+            Container(child: _buildExpensesCard(event))
           ],
         ));
   }
@@ -79,7 +79,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         header, _buildParticipantsList(participants), footer);
   }
 
-  Widget _buildExpensesCard(List<Expense> expenses) {
+  Widget _buildExpensesCard(Event event) {
     final header = ListTile(
         leading: const Icon(Icons.attach_money), title: const Text('Expenses'));
     final footer = ListTile(
@@ -87,13 +87,13 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
           showDialog<Expense>(
             context: context,
             builder: (ctx) => Container(child: AlertDialog(
-              title: Text("Add expense"),
-              content: ExpenseForm()
+              title: const Text("Add expense"),
+              content: ExpenseForm(availableParticipants: event.participants)
             )
           )).then((Expense createdExpense) => widget.bloc.addExpense(createdExpense));
         },);
 
-    return _buildCardGroup(header, _buildExpensesList(expenses), footer);
+    return _buildCardGroup(header, _buildExpensesList(event.expenses), footer);
   }
 
   Widget _buildExpensesList(List<Expense> expenses) {

@@ -12,11 +12,20 @@ class EventRepository {
 
 
   Future updateEvent(Event event) async {
-    final expenses = event.expenses.map((Expense e) => e.toMap()).toList();
-    print(expenses);
+    final expenses = event.expenses.map((Expense e) => _expenseToMap(e)).toList();
     await _firestore.collection('events')
               .document(event.uid)
               .updateData( <String, dynamic>{'expenses': expenses});
+  }
+
+  Map<String, dynamic> _expenseToMap(Expense e) {
+      return <String, dynamic>{
+        'name': e.name,
+        'description': e.description,
+        'amount': e.amount.toInt(),
+        'payer': _firestore.collection('users').document(e.payer.uid),
+        'borrower': _firestore.collection('users').document(e.borrower.uid)
+      };
   }
 
   Stream<List<Event>> get events {
