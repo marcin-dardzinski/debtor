@@ -11,21 +11,23 @@ import 'package:flutter/material.dart';
 FriendsService friendsService = FriendsService();
 
 class EventDetailsPage extends StatefulWidget {
-  EventDetailsBloc bloc;
-  final Event event;
-  EventDetailsPage({Key key, this.event}) : super(key: key) {
-    bloc = EventDetailsBloc(event);
-  }
+  final Event _event;
+  EventDetailsPage(this._event, {Key key}) : super(key: key);
 
   @override
-  _EventDetailsPageState createState() => _EventDetailsPageState();
+  _EventDetailsPageState createState() =>
+      _EventDetailsPageState(EventDetailsBloc(_event));
 }
 
 class _EventDetailsPageState extends State<EventDetailsPage> {
+  final EventDetailsBloc _bloc;
+
+  _EventDetailsPageState(this._bloc);
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Event>(
-        stream: widget.bloc.event,
+        stream: _bloc.event,
         builder: (context, AsyncSnapshot<Event> snapshot) {
           if (!snapshot.hasData) {
             return Loader();
@@ -85,7 +87,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                     Container(child: _buildFriendsListSelection(participants)))
             .then((u) {
           if (u != null) {
-            widget.bloc.addUser(u);
+            _bloc.addUser(u);
           }
         });
       },
@@ -105,7 +107,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               return Loader();
             }
 
-          final unaddedFriends = snapshot.data;
+            final unaddedFriends = snapshot.data;
             unaddedFriends.removeWhere(
                 (u) => participants.map((User p) => p.uid).contains(u.uid));
             return Container(
@@ -139,7 +141,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                             availableParticipants: event.participants))))
             .then((Expense createdExpense) {
           if (createdExpense != null) {
-            widget.bloc.addExpense(createdExpense);
+            _bloc.addExpense(createdExpense);
           }
         });
       },

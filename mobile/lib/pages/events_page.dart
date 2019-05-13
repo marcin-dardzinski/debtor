@@ -35,7 +35,7 @@ class _EventsPageState extends State<EventsPage> {
                     context,
                     MaterialPageRoute<Event>(
                         builder: (ctx) => EventDetailsPage(
-                            event: Event('', 'Yayyy', <User>[], <Expense>[]))))
+                            Event('', 'Yayyy', <User>[], <Expense>[]))))
                 .then((updatedEvent) {
               if (updatedEvent != null) {
                 _bloc.addEvent(updatedEvent);
@@ -71,7 +71,7 @@ class _EventsPageState extends State<EventsPage> {
           Navigator.push(
                   context,
                   MaterialPageRoute<Event>(
-                      builder: (ctx) => EventDetailsPage(event: event)))
+                      builder: (ctx) => EventDetailsPage(event)))
               .then((updatedEvent) {
             if (updatedEvent != null) {
               _bloc.updateEvent(updatedEvent);
