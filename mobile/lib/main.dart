@@ -1,6 +1,9 @@
 import 'package:debtor/authenticator.dart';
-import 'package:debtor/pages/books_page.dart';
+import 'package:debtor/pages/events_page.dart';
+import 'package:debtor/pages/expenses_page.dart';
 import 'package:debtor/pages/friends_page.dart';
+import 'package:debtor/pages/loader.dart';
+import 'package:debtor/providers/event_bloc_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_stetho/flutter_stetho.dart';
@@ -48,8 +51,10 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIdx = 0;
   final List<_HomePageEntry> _contents = [
-    _HomePageEntry(BookListPage(), 'Home', Icons.home),
+    _HomePageEntry(ExpensesPage(), 'Home', Icons.home),
     _HomePageEntry(FriendsPage(), 'Friends', Icons.people),
+    _HomePageEntry(
+        EventBlocProvider(child: EventsPage()), 'Events', Icons.event),
   ];
 
   @override
@@ -114,14 +119,5 @@ class LoginPage extends StatelessWidget {
 
   void _signIn() {
     authenticator.signIn();
-  }
-}
-
-class Loader extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
   }
 }

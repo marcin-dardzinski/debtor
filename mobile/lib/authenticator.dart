@@ -59,7 +59,7 @@ class Authenticator {
 
     final firebaseUser = await _firebaseAuth.signInWithCredential(credential);
     final user = User(firebaseUser.uid, firebaseUser.email,
-        firebaseUser.displayName, firebaseUser.photoUrl);
+        firebaseUser.displayName, firebaseUser.photoUrl, true);
 
     _loginState.add(AuthenticationState(user));
   }

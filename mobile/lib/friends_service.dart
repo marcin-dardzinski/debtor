@@ -61,6 +61,6 @@ class FriendsService {
 
   User _toUser(DocumentSnapshot u) {
     return User(u.documentID, u['email'].toString(), u['name'].toString(),
-        u['avatar'].toString());
+        u['avatar'].toString(), false);
   }
 }
