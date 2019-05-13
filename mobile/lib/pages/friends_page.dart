@@ -1,24 +1,37 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:debtor/authenticator.dart';
 import 'package:debtor/friends_service.dart';
+import 'package:debtor/helpers.dart';
 import 'package:debtor/models/user.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:tuple/tuple.dart';
 
 Authenticator authenticator = Authenticator();
 FriendsService friends = FriendsService();
+
+Observable<Tuple2<AuthenticationState, Decimal>> _combineUserAndExpenses() {
+  return Observable.combineLatest2(
+      authenticator.loggedInUser, friends.myTotalBalance,
+      (AuthenticationState auth, Decimal balance) {
+    return Tuple2(auth, balance);
+  });
+}
 
 class FriendsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        StreamBuilder<AuthenticationState>(
-            stream: authenticator.loggedInUser,
+        StreamBuilder<Tuple2<AuthenticationState, Decimal>>(
+            stream: _combineUserAndExpenses(),
             builder: (ctx, snapshot) {
-              if (snapshot.hasData && snapshot.data.user != null) {
+              if (snapshot.hasData && snapshot.data.item1.user != null) {
                 return CurrentUserBar(
-                  user: snapshot.data.user,
+                  user: snapshot.data.item1.user,
+                  totalBalance: snapshot.data.item2,
                 );
               }
               return Container();
@@ -79,7 +92,9 @@ class FriendsPage extends StatelessWidget {
 
 class CurrentUserBar extends StatelessWidget {
   final User user;
-  const CurrentUserBar({Key key, this.user}) : super(key: key);
+  final Decimal totalBalance;
+  const CurrentUserBar({Key key, this.user, this.totalBalance})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +136,17 @@ class CurrentUserBar extends StatelessWidget {
               ],
             ),
           ),
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            child: Text(
+              totalBalance.toStringAsFixed(2),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: getColorForBalance(totalBalance),
+              ),
+            ),
+          )
         ],
       ),
     );

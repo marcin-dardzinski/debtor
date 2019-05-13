@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:debtor/models/balance.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/authenticator.dart';
+import 'package:decimal/decimal.dart';
 
 class FriendsService {
   factory FriendsService() {
@@ -31,6 +33,23 @@ class FriendsService {
       },
     );
   }
+
+  Stream<Decimal> get myTotalBalance => myBalances.map((balances) {
+        var total = Decimal.fromInt(0);
+        for (var balance in balances) {
+          total += balance.amount;
+        }
+        return total;
+      });
+
+  Stream<List<Balance>> get myBalances =>
+      _authenticator.loggedInUser.asyncExpand((user) {
+        return Firestore.instance
+            .collection('users')
+            .document(user.user.uid)
+            .collection('balances')
+            .snapshots();
+      }).map((snap) => snap.documents.map(balanceFromSnapshot).toList());
 
   Future<List<User>> searchFriends(String email) async {
     if (email.isEmpty) {
