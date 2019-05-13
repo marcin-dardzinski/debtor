@@ -19,7 +19,8 @@ class EventRepository {
     await _firestore.collection('events').add(<String, dynamic>{
       'name': event.name,
       'expenses': expenses,
-      'participants': friends
+      'participants': friends,
+      'date': event.date.toIso8601String()
     });
   }
 
@@ -67,6 +68,7 @@ class EventRepository {
     final res = _firestore
         .collection('events')
         .where('participants', arrayContains: userDocument)
+        .orderBy('date', descending: true)
         .snapshots();
     return res;
   }
@@ -82,7 +84,8 @@ class EventRepository {
         .map((dynamic expenseMap) => _retrieveExpense(expenseMap, participants))
         .toList();
 
-    return Event(eventId, name, List<User>.from(participants), expenses);
+    final date = DateTime.parse(document['date']);
+    return Event(eventId, name, List<User>.from(participants), expenses, date);
   }
 
   Future<User> _retrieveUser(DocumentReference participantReference) async {

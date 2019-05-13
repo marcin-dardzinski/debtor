@@ -35,11 +35,14 @@ class _EventsPageState extends State<EventsPage> {
           onPressed: () async {
             final me = await authenticator.loggedInUser.first;
             Navigator.push(
-                    context,
-                    MaterialPageRoute<Event>(
-                        builder: (ctx) => EventDetailsPage(
-                            Event('', 'Yayyy', [me.user], <Expense>[]))))
-                .then((updatedEvent) {
+                context,
+                MaterialPageRoute<Event>(
+                    builder: (ctx) => EventDetailsPage(Event(
+                        '',
+                        'Yayyy',
+                        [me.user],
+                        <Expense>[],
+                        DateTime.now())))).then((updatedEvent) {
               if (updatedEvent != null) {
                 _bloc.addEvent(updatedEvent);
               }
