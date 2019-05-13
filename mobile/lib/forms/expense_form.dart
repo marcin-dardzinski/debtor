@@ -1,3 +1,4 @@
+import 'package:debtor/helpers.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
 import 'package:decimal/decimal.dart';
@@ -73,7 +74,8 @@ class ExpenseFormState extends State<ExpenseForm> {
 
   List<DropdownMenuItem<User>> _getDropdownMenuItems() {
     return widget.availableParticipants
-        .map((x) => DropdownMenuItem(value: x, child: Text(x.name)))
+        .map((x) => DropdownMenuItem(
+            value: x, child: Text(displayUserNameWithYouIndicator(x))))
         .toList();
   }
 }

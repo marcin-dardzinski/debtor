@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:debtor/blocs/event_detail_bloc.dart';
 import 'package:debtor/forms/expense_form.dart';
 import 'package:debtor/friends_service.dart';
+import 'package:debtor/helpers.dart';
 import 'package:debtor/models/event.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
@@ -131,19 +132,17 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     final footer = ListTile(
       leading: const Icon(Icons.add),
       title: const Text('Add expense'),
-      onTap: () {
-        showDialog<Expense>(
-                context: context,
-                builder: (ctx) => Container(
-                    child: AlertDialog(
-                        title: const Text('Add expense'),
-                        content: ExpenseForm(
-                            availableParticipants: event.participants))))
-            .then((Expense createdExpense) {
-          if (createdExpense != null) {
-            _bloc.addExpense(createdExpense);
-          }
-        });
+      onTap: () async {
+        final createdExpense = await showDialog<Expense>(
+            context: context,
+            builder: (ctx) => Container(
+                child: AlertDialog(
+                    title: const Text('Add expense'),
+                    content: ExpenseForm(
+                        availableParticipants: event.participants))));
+        if (createdExpense != null) {
+          _bloc.addExpense(createdExpense);
+        }
       },
     );
 
@@ -172,7 +171,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     return ListTile(
         leading: CircleAvatar(
             backgroundImage: CachedNetworkImageProvider(user.avatar)),
-        title: Text(user.name));
+        title: Text(displayUserNameWithYouIndicator(user)));
   }
 
   Widget _buildExpenseTile(Expense expense) {

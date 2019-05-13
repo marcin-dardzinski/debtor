@@ -1,12 +1,14 @@
+import 'package:debtor/authenticator.dart';
 import 'package:debtor/blocs/event_bloc.dart';
 import 'package:debtor/models/event.dart';
 import 'package:debtor/models/expense.dart';
-import 'package:debtor/models/user.dart';
 import 'package:debtor/pages/event_details_page.dart';
 import 'package:debtor/pages/loader.dart';
 import 'package:debtor/providers/event_bloc_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+
+final Authenticator authenticator = Authenticator();
 
 class EventsPage extends StatefulWidget {
   EventsPage({Key key}) : super(key: key);
@@ -30,12 +32,13 @@ class _EventsPageState extends State<EventsPage> {
       body: _buildEventsList(),
       floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
-          onPressed: () {
+          onPressed: () async {
+            final me = await authenticator.loggedInUser.first;
             Navigator.push(
                     context,
                     MaterialPageRoute<Event>(
                         builder: (ctx) => EventDetailsPage(
-                            Event('', 'Yayyy', <User>[], <Expense>[]))))
+                            Event('', 'Yayyy', [me.user], <Expense>[]))))
                 .then((updatedEvent) {
               if (updatedEvent != null) {
                 _bloc.addEvent(updatedEvent);

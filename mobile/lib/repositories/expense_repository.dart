@@ -33,11 +33,14 @@ class ExpenseRepository {
   }
 
   Future<Expense> _fetchExpense(DocumentSnapshot document) async {
+    final me = await _authenticator.loggedInUser.first;
+
     final name = document['name'].toString();
     final description = document['description'].toString();
     final amount = Decimal.fromInt(document['amount']);
-    final payer = User.fromDocument(await document['payer'].get());
-    final borrower = User.fromDocument(await document['payer'].get());
+    final payer = User.fromDocument(await document['payer'].get(), me.user.uid);
+    final borrower =
+        User.fromDocument(await document['payer'].get(), me.user.uid);
     return Expense(name, description, amount, payer, borrower);
   }
 }

@@ -1,7 +1,6 @@
 import 'package:debtor/blocs/expense_bloc.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/pages/loader.dart';
-import 'package:debtor/providers/expense_bloc_provider.dart';
 import 'package:flutter/material.dart';
 
 class ExpensesPage extends StatefulWidget {

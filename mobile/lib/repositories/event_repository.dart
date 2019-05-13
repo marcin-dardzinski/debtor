@@ -86,7 +86,8 @@ class EventRepository {
   }
 
   Future<User> _retrieveUser(DocumentReference participantReference) async {
-    return User.fromDocument(await participantReference.get());
+    final me = await _authenticator.loggedInUser.first;
+    return User.fromDocument(await participantReference.get(), me.user.uid);
   }
 
   Expense _retrieveExpense(dynamic expenseMap, List<User> eventUsers) {
