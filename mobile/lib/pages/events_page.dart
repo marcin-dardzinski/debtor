@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 class EventsPage extends StatefulWidget {
   EventsPage({Key key}) : super(key: key);
 
+  @override
   _EventsPageState createState() => _EventsPageState();
 }
 
@@ -28,13 +29,13 @@ class _EventsPageState extends State<EventsPage> {
     return Scaffold(
       body: _buildEventsList(),
       floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
+          child: const Icon(Icons.add),
           onPressed: () {
             Navigator.push(
                     context,
                     MaterialPageRoute<Event>(
                         builder: (ctx) => EventDetailsPage(
-                            event: Event("", "Yayyy", <User>[], <Expense>[]))))
+                            event: Event('', 'Yayyy', <User>[], <Expense>[]))))
                 .then((updatedEvent) {
               if (updatedEvent != null) {
                 _bloc.addEvent(updatedEvent);

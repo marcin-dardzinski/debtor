@@ -7,15 +7,12 @@ import 'package:flutter/material.dart';
 class ExpensesPage extends StatefulWidget {
   ExpensesPage({Key key}) : super(key: key);
 
+  @override
   _ExpensesPageState createState() => _ExpensesPageState();
 }
 
 class _ExpensesPageState extends State<ExpensesPage> {
   final ExpenseBloc _bloc = ExpenseBloc();
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

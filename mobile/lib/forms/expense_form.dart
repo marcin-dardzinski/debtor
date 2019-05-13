@@ -7,6 +7,7 @@ class ExpenseForm extends StatefulWidget {
   ExpenseForm({Key key, this.availableParticipants}) : super(key: key);
   final List<User> availableParticipants;
 
+  @override
   ExpenseFormState createState() => ExpenseFormState();
 }
 
@@ -28,8 +29,7 @@ class ExpenseFormState extends State<ExpenseForm> {
 
   @override
   Widget build(BuildContext context) {
-    var expense = Expense.empty();
-    var participants = _getDropdownMenuItems();
+    final expense = Expense.empty();
 
     return SingleChildScrollView(
       child: Form(

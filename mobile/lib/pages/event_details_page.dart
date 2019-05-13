@@ -43,7 +43,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     return Scaffold(
         appBar: AppBar(title: Text(event.name), actions: <Widget>[
           IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.check,
               ),
               onPressed: () {
@@ -97,24 +97,28 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
 
   Widget _buildFriendsListSelection(List<User> participants) {
     return AlertDialog(
-        title: const Text("Add friends"),
+        title: const Text('Add friends'),
         content: StreamBuilder<List<User>>(
           stream: friendsService.friends,
           builder: (ctx, snapshot) {
             if (!snapshot.hasData) {
               return Loader();
             }
-            final unaddedFriends = snapshot.data;
+
+          final unaddedFriends = snapshot.data;
             unaddedFriends.removeWhere(
                 (u) => participants.map((User p) => p.uid).contains(u.uid));
-            return ListView.builder(
-              itemCount: unaddedFriends.length,
-              itemBuilder: (ctx, idx) {
-                return ListTile(
-                    title: Text(unaddedFriends[idx].name),
-                    onTap: () => Navigator.pop(ctx, unaddedFriends[idx]));
-              },
-            );
+            return Container(
+                width: 300,
+                height: 300,
+                child: ListView.builder(
+                  itemCount: unaddedFriends.length,
+                  itemBuilder: (ctx, idx) {
+                    return ListTile(
+                        title: Text(unaddedFriends[idx].name),
+                        onTap: () => Navigator.pop(ctx, unaddedFriends[idx]));
+                  },
+                ));
           },
         ));
   }
