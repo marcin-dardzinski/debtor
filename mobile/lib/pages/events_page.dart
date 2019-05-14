@@ -39,7 +39,7 @@ class _EventsPageState extends State<EventsPage> {
                 MaterialPageRoute<Event>(
                     builder: (ctx) => EventDetailsPage(Event(
                         '',
-                        'Yayyy',
+                        '',
                         [me.user],
                         <Expense>[],
                         DateTime.now())))).then((updatedEvent) {

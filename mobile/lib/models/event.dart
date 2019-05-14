@@ -3,7 +3,7 @@ import 'package:debtor/models/user.dart';
 
 class Event {
   final String uid;
-  final String name;
+  String name;
   final List<User> participants;
   final List<Expense> expenses;
   final DateTime date;
