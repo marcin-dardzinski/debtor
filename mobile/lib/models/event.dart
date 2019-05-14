@@ -6,6 +6,7 @@ class Event {
   final String name;
   final List<User> participants;
   final List<Expense> expenses;
+  final DateTime date;
 
-  Event(this.uid, this.name, this.participants, this.expenses);
+  Event(this.uid, this.name, this.participants, this.expenses, this.date);
 }

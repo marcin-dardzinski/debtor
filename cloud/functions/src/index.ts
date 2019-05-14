@@ -1,5 +1,6 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import { DocumentReference, DocumentSnapshot } from '@google-cloud/firestore';
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -28,6 +29,41 @@ export const addFriend = functions.https.onCall(async (request, ctx) => {
 
     await callerUser.set({ friends: [toAddUser] }, { merge: true })
     await toAddUser.set({ friends: [callerUser] }, { merge: true })
+});
+
+export const updateBalances = functions.firestore.document('events/{eventId}').onCreate(async (snap, ctx) => {
+    const event = snap.data();
+    if (!event) {
+        return;
+    }
+
+    const getCurrentAmount = (doc: DocumentSnapshot) => {
+        const data = doc.data();
+        return data && data['amount'] as number || 0;
+    }
+
+    const expenses = event['expenses'];
+    for (const expense of expenses) {
+        const payer = expense['payer'] as DocumentReference;
+        const borrower = expense['borrower'] as DocumentReference;
+        const amount = expense['amount'] as number;
+
+        const payerId = payer.id;
+        const borrowerId = borrower.id;
+        console.log(`payer: ${payerId}`);
+        console.log(`borrower ${borrowerId}`);
+
+        const payerBalancesRef = payer.collection('balances').doc(borrowerId);
+        const borrowerBalancesRef = borrower.collection('balances').doc(payerId);
+        const payerBalances = await payerBalancesRef.get();
+        const borrowerBalances = await borrowerBalancesRef.get();
+
+        const newPayer = getCurrentAmount(payerBalances) + amount;
+        const newBorrower = getCurrentAmount(borrowerBalances) - amount;
+
+        await payerBalancesRef.set({ amount: newPayer });
+        await borrowerBalancesRef.set({ amount: newBorrower });
+    }
 });
 
 
