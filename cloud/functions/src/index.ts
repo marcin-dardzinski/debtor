@@ -31,38 +31,54 @@ export const addFriend = functions.https.onCall(async (request, ctx) => {
     await toAddUser.set({ friends: [callerUser] }, { merge: true })
 });
 
-export const updateBalances = functions.firestore.document('events/{eventId}').onCreate(async (snap, ctx) => {
-    const event = snap.data();
-    if (!event) {
-        return;
-    }
+
+
+export const updateBalances = functions.firestore.document('events/{eventId}').onWrite(async (change, ctx) => {
+    type AmountCombiner = (a: number, b: number) => number;
+    const add: AmountCombiner = (a, b) => a + b;
+    const subtract: AmountCombiner = (a, b) => a - b;
 
     const getCurrentAmount = (doc: DocumentSnapshot) => {
         const data = doc.data();
         return data && data['amount'] as number || 0;
     }
 
-    const expenses = event['expenses'];
-    for (const expense of expenses) {
+    const updateExpense = async (expense: any, payerComb: AmountCombiner, borrowerComb: AmountCombiner) => {
         const payer = expense['payer'] as DocumentReference;
         const borrower = expense['borrower'] as DocumentReference;
         const amount = expense['amount'] as number;
 
         const payerId = payer.id;
         const borrowerId = borrower.id;
-        console.log(`payer: ${payerId}`);
-        console.log(`borrower ${borrowerId}`);
 
         const payerBalancesRef = payer.collection('balances').doc(borrowerId);
         const borrowerBalancesRef = borrower.collection('balances').doc(payerId);
         const payerBalances = await payerBalancesRef.get();
         const borrowerBalances = await borrowerBalancesRef.get();
 
-        const newPayer = getCurrentAmount(payerBalances) + amount;
-        const newBorrower = getCurrentAmount(borrowerBalances) - amount;
+        const newPayer = payerComb(getCurrentAmount(payerBalances), amount);
+        const newBorrower = borrowerComb(getCurrentAmount(borrowerBalances), amount);
 
         await payerBalancesRef.set({ amount: newPayer });
         await borrowerBalancesRef.set({ amount: newBorrower });
+    };
+
+    const revertExpense = (expense: any) => updateExpense(expense, subtract, add);
+    const addExpense = (expense: any) => updateExpense(expense, add, subtract);
+
+    const deleted = change.before && change.before.data();
+    const added = change.after && change.after.data();
+
+    if (deleted) {
+        for (const expense of deleted['expenses']) {
+            await revertExpense(expense);
+        }
+    }
+
+    if (added) {
+        for (const expense of added['expenses']) {
+            await addExpense(expense);
+        }
     }
 });
 
