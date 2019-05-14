@@ -17,13 +17,16 @@ class EventDetailsPage extends StatefulWidget {
 
   @override
   _EventDetailsPageState createState() =>
-      _EventDetailsPageState(EventDetailsBloc(_event));
+      _EventDetailsPageState(_event);
 }
 
 class _EventDetailsPageState extends State<EventDetailsPage> {
-  final EventDetailsBloc _bloc;
-
-  _EventDetailsPageState(this._bloc);
+  EventDetailsBloc _bloc;
+  TextEditingController eventNameController;
+  _EventDetailsPageState(Event event) {
+    _bloc = EventDetailsBloc(event);
+    eventNameController = TextEditingController(text: event.name);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +53,14 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                 Icons.check,
               ),
               onPressed: () {
+                event.name = eventNameController.text;
                 Navigator.pop(context, event);
               }),
         ]),
         body: SingleChildScrollView(
           child: Column(
             children: <Widget>[
+              ListTile(title: TextField(decoration: InputDecoration(labelText: 'Event name'), controller: eventNameController)),
               Container(child: _buildParticipantsCard(event.participants)),
               Container(child: _buildExpensesCard(event))
             ],

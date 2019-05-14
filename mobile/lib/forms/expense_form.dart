@@ -51,11 +51,13 @@ class ExpenseFormState extends State<ExpenseForm> {
                 keyboardType: TextInputType.number,
                 onSaved: (amount) => expense.amount = Decimal.parse(amount)),
             DropdownButtonFormField<User>(
+                decoration: InputDecoration(labelText: 'Borrower'),
                 items: _getDropdownMenuItems(),
                 value: _currentBorrower,
                 onChanged: (value) => setState(() => _currentBorrower = value),
                 onSaved: (value) => expense.borrower = _currentBorrower),
             DropdownButtonFormField<User>(
+                decoration: InputDecoration(labelText: 'Payer'),
                 items: _getDropdownMenuItems(),
                 value: _currentPayer,
                 onChanged: (value) => setState(() => _currentPayer = value),
