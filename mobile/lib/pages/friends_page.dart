@@ -4,6 +4,8 @@ import 'package:debtor/friends_service.dart';
 import 'package:debtor/helpers.dart';
 import 'package:debtor/models/balance.dart';
 import 'package:debtor/models/user.dart';
+import 'package:debtor/pages/friend_page.dart';
+import 'package:debtor/widgets/user_bar.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -43,7 +45,7 @@ class FriendsPage extends StatelessWidget {
             stream: _combineUserAndTotalBalance(),
             builder: (ctx, snapshot) {
               if (snapshot.hasData && snapshot.data.item1.user != null) {
-                return CurrentUserBar(
+                return UserBar(
                   user: snapshot.data.item1.user,
                   totalBalance: snapshot.data.item2,
                 );
@@ -63,8 +65,8 @@ class FriendsPage extends StatelessWidget {
                   itemCount: snapshot.data.length + 1,
                   itemBuilder: (ctx, idx) {
                     return idx < snapshot.data.length
-                        ? _friendTile(
-                            snapshot.data[idx].item1, snapshot.data[idx].item2)
+                        ? _friendTile(ctx, snapshot.data[idx].item1,
+                            snapshot.data[idx].item2)
                         : _addFriendButton(ctx);
                   }),
             );
@@ -74,7 +76,7 @@ class FriendsPage extends StatelessWidget {
     );
   }
 
-  Widget _friendTile(User user, Decimal balance) {
+  Widget _friendTile(BuildContext ctx, User user, Decimal balance) {
     return ListTile(
       leading: CircleAvatar(
         backgroundImage: CachedNetworkImageProvider(user.avatar),
@@ -82,11 +84,20 @@ class FriendsPage extends StatelessWidget {
       title: Text(user.name),
       subtitle: Text(user.email),
       trailing: Container(
-          margin: const EdgeInsets.only(right: 8),
-          child: Text(
-            balance.toStringAsFixed(2),
-            style: TextStyle(color: getColorForBalance(balance)),
-          )),
+        margin: const EdgeInsets.only(right: 8),
+        child: Text(
+          balance.toStringAsFixed(2),
+          style: TextStyle(color: getColorForBalance(balance)),
+        ),
+      ),
+      onTap: () {
+        Navigator.push(
+          ctx,
+          MaterialPageRoute<Object>(
+            builder: (context) => FriendPage(user, balance),
+          ),
+        );
+      },
     );
   }
 
@@ -106,69 +117,6 @@ class FriendsPage extends StatelessWidget {
             await friends.addFriend(newFriend);
           }
         },
-      ),
-    );
-  }
-}
-
-class CurrentUserBar extends StatelessWidget {
-  final User user;
-  final Decimal totalBalance;
-  const CurrentUserBar({Key key, this.user, this.totalBalance})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            margin: const EdgeInsets.only(right: 8),
-            child: CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(user.avatar),
-              radius: 40,
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    user.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
-                ),
-                Text(
-                  user.email,
-                  textAlign: TextAlign.start,
-                  style: const TextStyle(fontSize: 12),
-                )
-              ],
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            child: Text(
-              totalBalance.toStringAsFixed(2),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: getColorForBalance(totalBalance),
-              ),
-            ),
-          )
-        ],
       ),
     );
   }
