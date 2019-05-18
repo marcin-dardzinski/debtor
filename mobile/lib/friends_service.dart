@@ -22,6 +22,7 @@ class FriendsService {
                 arrayContains: Firestore.instance
                     .collection('users')
                     .document(user.user.uid))
+            .orderBy('email')
             .snapshots();
       }).map((snap) => snap.documents.map(_toUser).toList());
 

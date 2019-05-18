@@ -33,7 +33,7 @@ export const addFriend = functions.https.onCall(async (request, ctx) => {
 
 
 
-export const updateBalances = functions.firestore.document('events/{eventId}').onWrite(async (change, ctx) => {
+export const updateBalancesOnEventAdded = functions.firestore.document('events/{eventId}').onWrite(async (change, ctx) => {
     type AmountCombiner = (a: number, b: number) => number;
     const add: AmountCombiner = (a, b) => a + b;
     const subtract: AmountCombiner = (a, b) => a - b;
@@ -82,35 +82,23 @@ export const updateBalances = functions.firestore.document('events/{eventId}').o
     }
 });
 
+export const updateBalancesOnPayment = functions.firestore.document('payments/{paymentId}').onCreate(async (snap, ctx) => {
+    const data = snap.data();
+    if (!data) {
+        return;
+    }
 
+    const payerRef = data['payer'] as DocumentReference;
+    const receipientRef = data['receipient'] as DocumentReference;
+    const amount = data['amount'] as number;
 
-// function getFriends(user: FirebaseFirestore.DocumentData) {
-//     if (!user) {
-//         return undefined;
-//     }
-//     const friends = user['friends'] as string[];
-//     if (!friends) {
-//         return undefined;
-//     }
-//     return new Set(friends);
-// }
+    const update = async (user: DocumentReference, friend: DocumentReference, change: number) => {
+        const balanceRef = user.collection('balances').doc(friend.id);
+        const balance = (await balanceRef.get()).data();
+        const newAmount = change + (balance && balance['amount'] as number || 0);
+        await balanceRef.set({ balance: newAmount })
+    };
 
-// export const addFriendRelationShips = functions.firestore.document('users/{userId}').onUpdate(async (user, context) => {
-//     const newFriends = getFriends(user.after);
-//     const oldFriends = getFriends(user.before);
-
-//     if (!newFriends || !oldFriends) {
-//         return;
-//     }
-
-//     let added = [...newFriends].filter(x => !oldFriends.has(x));
-//     let removed = [...oldFriends].filter(x => !newFriends.has(x));
-
-//     added.map()
-
-
-
-
-
-
-// });
+    await update(payerRef, receipientRef, amount);
+    await update(receipientRef, payerRef, -amount);
+});
