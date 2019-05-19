@@ -1,7 +1,7 @@
 import 'package:debtor/authenticator.dart';
-import 'package:debtor/balances_service.dart';
 import 'package:debtor/forms/payment_form.dart';
 import 'package:debtor/models/user.dart';
+import 'package:debtor/services/balances_service.dart';
 import 'package:debtor/widgets/user_bar.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';

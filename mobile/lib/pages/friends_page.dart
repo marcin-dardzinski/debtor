@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:debtor/authenticator.dart';
-import 'package:debtor/friends_service.dart';
 import 'package:debtor/helpers.dart';
 import 'package:debtor/models/balance.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/pages/friend_page.dart';
+import 'package:debtor/services/friends_service.dart';
 import 'package:debtor/widgets/user_bar.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';

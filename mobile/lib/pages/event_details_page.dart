@@ -1,12 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:debtor/blocs/event_detail_bloc.dart';
 import 'package:debtor/forms/expense_form.dart';
-import 'package:debtor/friends_service.dart';
 import 'package:debtor/helpers.dart';
 import 'package:debtor/models/event.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/pages/loader.dart';
+import 'package:debtor/services/friends_service.dart';
 import 'package:flutter/material.dart';
 
 FriendsService friendsService = FriendsService();
@@ -16,8 +16,7 @@ class EventDetailsPage extends StatefulWidget {
   EventDetailsPage(this._event, {Key key}) : super(key: key);
 
   @override
-  _EventDetailsPageState createState() =>
-      _EventDetailsPageState(_event);
+  _EventDetailsPageState createState() => _EventDetailsPageState(_event);
 }
 
 class _EventDetailsPageState extends State<EventDetailsPage> {
@@ -60,7 +59,10 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         body: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              ListTile(title: TextField(decoration: InputDecoration(labelText: 'Event name'), controller: eventNameController)),
+              ListTile(
+                  title: TextField(
+                      decoration: InputDecoration(labelText: 'Event name'),
+                      controller: eventNameController)),
               Container(child: _buildParticipantsCard(event.participants)),
               Container(child: _buildExpensesCard(event))
             ],
