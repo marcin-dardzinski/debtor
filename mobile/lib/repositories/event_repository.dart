@@ -100,7 +100,7 @@ class EventRepository {
   }
 
   Expense _retrieveExpense(dynamic expenseMap, List<User> eventUsers) {
-    final amount = Decimal.fromInt(expenseMap['amount']);
+    final amount = Decimal.parse(expenseMap['amount'].toString());
     final description = expenseMap['description'].toString();
     final name = expenseMap['name'].toString();
     final borrower = eventUsers

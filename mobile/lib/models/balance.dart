@@ -11,6 +11,6 @@ class Balance {
 Balance balanceFromSnapshot(DocumentSnapshot snap) {
   return Balance(
     snap.documentID,
-    Decimal.fromInt(snap.data['amount']),
+    Decimal.parse(snap.data['amount'].toString()),
   );
 }
