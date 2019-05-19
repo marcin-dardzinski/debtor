@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:debtor/authenticator.dart';
+import 'package:debtor/models/balance_item.dart';
+import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/payment.dart';
+import 'package:debtor/models/user.dart';
 import 'package:decimal/decimal.dart';
 import 'package:tuple/tuple.dart';
 
@@ -24,6 +27,47 @@ class BalancesService {
     final payment = Payment(payer, receipient, amount, DateTime.now());
 
     await Firestore.instance.collection('payments').add(_paymentToMap(payment));
+  }
+
+  Stream<List<BalanceItem>> expensesWithUser(User user) {
+    return _authenticator.loggedInUser.asyncExpand((currentUser) {
+      final currentUserRef =
+          Firestore.instance.collection('users').document(currentUser.user.uid);
+      final otherUserRef =
+          Firestore.instance.collection('users').document(user.uid);
+
+      return Firestore.instance
+          .collection('events')
+          .where('participants', arrayContains: currentUserRef)
+          .snapshots()
+          .map((snaps) {
+        return snaps.documents.where((doc) {
+          final participants = doc['participants'] as List<dynamic>;
+          return participants.contains(otherUserRef);
+        }).expand((doc) {
+          final expenes = doc.data['events'] as List<dynamic>;
+          return expenes.where((dynamic exp) {
+            final dynamic payer = exp['payer'];
+            final dynamic borrower = exp['borrower'];
+
+            return (payer == otherUserRef || payer == currentUserRef) &&
+                (borrower == otherUserRef || borrower == currentUserRef);
+          }).map((dynamic exp) {
+            final payer =
+                exp['payer'] == currentUserRef ? currentUser.user : user;
+            final receipient =
+                exp['borrower'] == currentUserRef ? currentUser.user : user;
+            final amount = Decimal.parse(exp['amount'].toString());
+            final date = DateTime.parse(exp['date']);
+            final description = exp['title'] as String;
+
+            return BalanceItem(
+                payer, receipient, date, amount, description, true);
+          });
+        }).toList()
+          ..sort((a, b) => -a.date.compareTo(b.date));
+      });
+    });
   }
 
   Tuple3<String, String, Decimal> _getPayerAndReceipient(

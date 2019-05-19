@@ -1,5 +1,7 @@
 import 'package:debtor/authenticator.dart';
 import 'package:debtor/forms/payment_form.dart';
+import 'package:debtor/models/balance_item.dart';
+import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/services/balances_service.dart';
 import 'package:debtor/widgets/user_bar.dart';
@@ -46,6 +48,12 @@ class FriendPage extends StatelessWidget {
           UserBar(
             user: _friend,
             totalBalance: _balance,
+          ),
+          StreamBuilder<List<BalanceItem>>(
+            stream: _balancesService.expensesWithUser(_friend),
+            builder: (ctx, snapshot) {
+              return Container();
+            },
           )
         ],
       ),
