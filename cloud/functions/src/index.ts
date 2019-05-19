@@ -96,7 +96,7 @@ export const updateBalancesOnPayment = functions.firestore.document('payments/{p
         const balanceRef = user.collection('balances').doc(friend.id);
         const balance = (await balanceRef.get()).data();
         const newAmount = change + (balance && balance['amount'] as number || 0);
-        await balanceRef.set({ balance: newAmount })
+        await balanceRef.set({ amount: newAmount })
     };
 
     await update(payerRef, receipientRef, amount);

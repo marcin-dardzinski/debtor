@@ -23,7 +23,7 @@ Observable<Tuple2<AuthenticationState, Decimal>> _combineUserAndTotalBalance() {
   });
 }
 
-Observable<List<Tuple2<User, Decimal>>> _combineFriendsAndBalaces() {
+Observable<List<Tuple2<User, Decimal>>> _combineFriendsAndBalances() {
   return Observable.combineLatest2(friends.friends, friends.myBalances,
       (List<User> friends, List<Balance> balances) {
     final balancesMap = Map<String, Decimal>.fromIterable(balances,
@@ -54,7 +54,7 @@ class FriendsPage extends StatelessWidget {
             }),
         const Divider(),
         StreamBuilder<List<Tuple2<User, Decimal>>>(
-          stream: _combineFriendsAndBalaces(),
+          stream: _combineFriendsAndBalances(),
           builder: (ctx, snapshot) {
             if (!snapshot.hasData) {
               return Container();

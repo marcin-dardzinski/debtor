@@ -19,6 +19,7 @@ class BalancesService {
         _getPayerAndReceipient(currentUserId, userId, amount);
     final payer = payerReceipient.item1;
     final receipient = payerReceipient.item2;
+    amount = payerReceipient.item3;
 
     final payment = Payment(payer, receipient, amount, DateTime.now());
 
@@ -38,7 +39,7 @@ class BalancesService {
       'payer': Firestore.instance.collection('users').document(p.payer),
       'receipient':
           Firestore.instance.collection('users').document(p.receipient),
-      'amount': p.amount,
+      'amount': p.amount.toDouble(),
       'date': p.date
     };
   }

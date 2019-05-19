@@ -30,8 +30,14 @@ class EventRepository {
     final friends = event.participants
         .map((User u) => _firestore.collection('users').document(u.uid))
         .toList();
-    await _firestore.collection('events').document(event.uid).updateData(
-        <String, dynamic>{'expenses': expenses, 'participants': friends, 'name': event.name});
+    await _firestore
+        .collection('events')
+        .document(event.uid)
+        .updateData(<String, dynamic>{
+      'expenses': expenses,
+      'participants': friends,
+      'name': event.name
+    });
   }
 
   Map<String, dynamic> _expenseToMap(Expense e) {
