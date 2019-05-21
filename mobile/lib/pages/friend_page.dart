@@ -1,5 +1,6 @@
 import 'package:debtor/authenticator.dart';
 import 'package:debtor/forms/payment_form.dart';
+import 'package:debtor/helpers.dart';
 import 'package:debtor/models/balance_item.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
@@ -45,18 +46,61 @@ class FriendPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          UserBar(
-            user: _friend,
-            totalBalance: _balance,
+          Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: UserBar(
+              user: _friend,
+              totalBalance: _balance,
+            ),
           ),
           StreamBuilder<List<BalanceItem>>(
             stream: _balancesService.expensesWithUser(_friend),
             builder: (ctx, snapshot) {
-              return Container();
+              if (snapshot.hasError) {
+                return const Center(child: Text('Error'));
+              }
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final balances = snapshot.data;
+
+              return Expanded(
+                  child: ListView.builder(
+                itemCount: 2 * balances.length,
+                itemBuilder: (ctx, idx) =>
+                    idx % 2 == 0 ? ExpenseTile(balances[idx ~/ 2]) : Divider(),
+              ));
             },
           )
         ],
       ),
     );
   }
+}
+
+class ExpenseTile extends StatelessWidget {
+  final BalanceItem balance;
+  const ExpenseTile(this.balance);
+
+  @override
+  Widget build(BuildContext context) {
+    final amount =
+        balance.payer.isCurrentUser ? balance.amount : -balance.amount;
+
+    return ListTile(
+      leading: Icon(balance.isExpense ? Icons.receipt : Icons.attach_money),
+      title: Text(balance.isExpense ? balance.description : 'Payment'),
+      subtitle: Text(balance.payer.name),
+      trailing: Container(
+        margin: const EdgeInsets.only(right: 8),
+        child: Text(
+          amount.toStringAsFixed(2),
+          style: TextStyle(color: getColorForBalance(amount)),
+        ),
+      ),
+    );
+  }
+
+  Decimal foo() => null;
 }

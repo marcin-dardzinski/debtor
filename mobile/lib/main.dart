@@ -1,6 +1,5 @@
 import 'package:debtor/authenticator.dart';
 import 'package:debtor/pages/events_page.dart';
-import 'package:debtor/pages/expenses_page.dart';
 import 'package:debtor/pages/friends_page.dart';
 import 'package:debtor/pages/loader.dart';
 import 'package:debtor/providers/event_bloc_provider.dart';

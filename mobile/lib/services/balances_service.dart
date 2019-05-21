@@ -45,7 +45,7 @@ class BalancesService {
           final participants = doc['participants'] as List<dynamic>;
           return participants.contains(otherUserRef);
         }).expand((doc) {
-          final expenes = doc.data['events'] as List<dynamic>;
+          final expenes = doc['expenses'] as List<dynamic>;
           return expenes.where((dynamic exp) {
             final dynamic payer = exp['payer'];
             final dynamic borrower = exp['borrower'];
@@ -58,8 +58,8 @@ class BalancesService {
             final receipient =
                 exp['borrower'] == currentUserRef ? currentUser.user : user;
             final amount = Decimal.parse(exp['amount'].toString());
-            final date = DateTime.parse(exp['date']);
-            final description = exp['title'] as String;
+            final date = DateTime.parse(doc['date']);
+            final description = exp['name'] as String;
 
             return BalanceItem(
                 payer, receipient, date, amount, description, true);
