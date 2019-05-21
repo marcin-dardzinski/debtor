@@ -54,7 +54,7 @@ class FriendPage extends StatelessWidget {
             ),
           ),
           StreamBuilder<List<BalanceItem>>(
-            stream: _balancesService.expensesWithUser(_friend),
+            stream: _balancesService.balancesWithUser(_friend),
             builder: (ctx, snapshot) {
               if (snapshot.hasError) {
                 return const Center(child: Text('Error'));
@@ -90,7 +90,7 @@ class ExpenseTile extends StatelessWidget {
 
     return ListTile(
       leading: Icon(balance.isExpense ? Icons.receipt : Icons.attach_money),
-      title: Text(balance.isExpense ? balance.description : 'Payment'),
+      title: Text(balance.description),
       subtitle: Text(balance.payer.name),
       trailing: Container(
         margin: const EdgeInsets.only(right: 8),
@@ -101,6 +101,4 @@ class ExpenseTile extends StatelessWidget {
       ),
     );
   }
-
-  Decimal foo() => null;
 }
