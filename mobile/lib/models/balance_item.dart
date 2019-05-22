@@ -3,12 +3,12 @@ import 'package:decimal/decimal.dart';
 
 class BalanceItem {
   final User payer;
-  final User receipient;
+  final User recipient;
   final DateTime date;
   final Decimal amount;
   final String description;
   final bool isExpense;
 
-  BalanceItem(this.payer, this.receipient, this.date, this.amount,
+  BalanceItem(this.payer, this.recipient, this.date, this.amount,
       this.description, this.isExpense);
 }

@@ -18,13 +18,12 @@ class BalancesService {
 
   Future pay(String userId, Decimal amount) async {
     final currentUserId = (await _authenticator.loggedInUser.first).user.uid;
-    final payerReceipient =
-        _getPayerAndReceipient(currentUserId, userId, amount);
-    final payer = payerReceipient.item1;
-    final receipient = payerReceipient.item2;
-    amount = payerReceipient.item3;
+    final payerRecipient = _getPayerAndRecipient(currentUserId, userId, amount);
+    final payer = payerRecipient.item1;
+    final recipient = payerRecipient.item2;
+    amount = payerRecipient.item3;
 
-    final payment = Payment(payer, receipient, amount, DateTime.now());
+    final payment = Payment(payer, recipient, amount, DateTime.now());
 
     await Firestore.instance.collection('payments').add(_paymentToMap(payment));
   }
@@ -67,14 +66,14 @@ class BalancesService {
           }).map((dynamic exp) {
             final payer =
                 exp['payer'] == currentUserRef ? currentUser.user : user;
-            final receipient =
+            final recipient =
                 exp['borrower'] == currentUserRef ? currentUser.user : user;
             final amount = Decimal.parse(exp['amount'].toString());
             final date = DateTime.parse(doc['date']);
             final description = exp['name'] as String;
 
             return BalanceItem(
-                payer, receipient, date, amount, description, true);
+                payer, recipient, date, amount, description, true);
           });
         });
       });
@@ -100,27 +99,27 @@ class BalancesService {
   }
 
   Stream<Iterable<BalanceItem>> _mapPayments(
-      Stream<QuerySnapshot> query, User payer, User receipient) {
+      Stream<QuerySnapshot> query, User payer, User recipient) {
     return query.map((snap) {
       return snap.documents.map((doc) {
         final date = DateTime.parse(doc['date']);
         final amount = Decimal.parse(doc['amount'].toString());
 
-        return BalanceItem(payer, receipient, date, amount, 'Payment', false);
+        return BalanceItem(payer, recipient, date, amount, 'Payment', false);
       });
     });
   }
 
   Stream<QuerySnapshot> _getRawPayments(
-      DocumentReference payer, DocumentReference receipient) {
+      DocumentReference payer, DocumentReference recipient) {
     return Firestore.instance
         .collection('payments')
         .where('payer', isEqualTo: payer)
-        .where('receipient', isEqualTo: receipient)
+        .where('recipient', isEqualTo: recipient)
         .snapshots();
   }
 
-  Tuple3<String, String, Decimal> _getPayerAndReceipient(
+  Tuple3<String, String, Decimal> _getPayerAndRecipient(
       String currentUser, String otherUser, Decimal amount) {
     if (amount > Decimal.fromInt(0)) {
       return Tuple3(currentUser, otherUser, amount.abs());
@@ -131,8 +130,8 @@ class BalancesService {
   Map<String, dynamic> _paymentToMap(Payment p) {
     return <String, dynamic>{
       'payer': Firestore.instance.collection('users').document(p.payer),
-      'receipient':
-          Firestore.instance.collection('users').document(p.receipient),
+      'recipient':
+          Firestore.instance.collection('users').document(p.recipient),
       'amount': p.amount.toDouble(),
       'date': p.date.toIso8601String()
     };

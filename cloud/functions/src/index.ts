@@ -89,7 +89,7 @@ export const updateBalancesOnPayment = functions.firestore.document('payments/{p
     }
 
     const payerRef = data['payer'] as DocumentReference;
-    const receipientRef = data['receipient'] as DocumentReference;
+    const recipientRef = data['recipient'] as DocumentReference;
     const amount = data['amount'] as number;
 
     const update = async (user: DocumentReference, friend: DocumentReference, change: number) => {
@@ -99,6 +99,6 @@ export const updateBalancesOnPayment = functions.firestore.document('payments/{p
         await balanceRef.set({ amount: newAmount })
     };
 
-    await update(payerRef, receipientRef, amount);
-    await update(receipientRef, payerRef, -amount);
+    await update(payerRef, recipientRef, amount);
+    await update(recipientRef, payerRef, -amount);
 });

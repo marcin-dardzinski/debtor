@@ -19,7 +19,7 @@ class PaymentForm extends StatefulWidget {
 class PaymentFormState extends State<PaymentForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   User _payer;
-  User _receipient;
+  User _recipient;
   Decimal _multiplier;
   Decimal _balance;
 
@@ -27,7 +27,7 @@ class PaymentFormState extends State<PaymentForm> {
     final currentUserIsPaying = balance < Decimal.fromInt(0);
 
     _payer = currentUserIsPaying ? currentUser : otherUser;
-    _receipient = currentUserIsPaying ? otherUser : currentUser;
+    _recipient = currentUserIsPaying ? otherUser : currentUser;
     _multiplier = Decimal.fromInt(currentUserIsPaying ? 1 : -1);
     _balance = balance;
   }
@@ -53,14 +53,14 @@ class PaymentFormState extends State<PaymentForm> {
                     const Icon(Icons.arrow_right),
                     CircleAvatar(
                       backgroundImage:
-                          CachedNetworkImageProvider(_receipient.avatar),
+                          CachedNetworkImageProvider(_recipient.avatar),
                     )
                   ],
                 ),
               ),
               Text(_payer.name),
               const Text('pays'),
-              Text(_receipient.name),
+              Text(_recipient.name),
               TextFormField(
                   decoration: InputDecoration(labelText: 'Amount'),
                   keyboardType: TextInputType.number,
