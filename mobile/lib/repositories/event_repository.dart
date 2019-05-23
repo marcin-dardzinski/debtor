@@ -30,8 +30,14 @@ class EventRepository {
     final friends = event.participants
         .map((User u) => _firestore.collection('users').document(u.uid))
         .toList();
-    await _firestore.collection('events').document(event.uid).updateData(
-        <String, dynamic>{'expenses': expenses, 'participants': friends, 'name': event.name});
+    await _firestore
+        .collection('events')
+        .document(event.uid)
+        .updateData(<String, dynamic>{
+      'expenses': expenses,
+      'participants': friends,
+      'name': event.name
+    });
   }
 
   Map<String, dynamic> _expenseToMap(Expense e) {
@@ -94,7 +100,7 @@ class EventRepository {
   }
 
   Expense _retrieveExpense(dynamic expenseMap, List<User> eventUsers) {
-    final amount = Decimal.fromInt(expenseMap['amount']);
+    final amount = Decimal.parse(expenseMap['amount'].toString());
     final description = expenseMap['description'].toString();
     final name = expenseMap['name'].toString();
     final borrower = eventUsers

@@ -37,7 +37,7 @@ class ExpenseRepository {
 
     final name = document['name'].toString();
     final description = document['description'].toString();
-    final amount = Decimal.fromInt(document['amount']);
+    final amount = Decimal.parse(document['amount'].toString());
     final payer = User.fromDocument(await document['payer'].get(), me.user.uid);
     final borrower =
         User.fromDocument(await document['payer'].get(), me.user.uid);
