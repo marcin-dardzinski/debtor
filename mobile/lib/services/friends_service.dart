@@ -4,6 +4,7 @@ import 'package:debtor/models/balance.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/authenticator.dart';
 import 'package:decimal/decimal.dart';
+import 'package:rxdart/rxdart.dart';
 
 class FriendsService {
   factory FriendsService() {
@@ -43,14 +44,16 @@ class FriendsService {
         return total;
       });
 
-  Stream<List<Balance>> get myBalances =>
-      _authenticator.loggedInUser.asyncExpand((user) {
-        return Firestore.instance
-            .collection('users')
-            .document(user.user.uid)
-            .collection('balances')
-            .snapshots();
-      }).map((snap) => snap.documents.map(balanceFromSnapshot).toList());
+  final BehaviorSubject<List<Balance>> _stubStream =
+      BehaviorSubject<List<Balance>>(seedValue: []);
+  Stream<List<Balance>> get myBalances => _stubStream.stream;
+  // _authenticator.loggedInUser.asyncExpand((user) {
+  //   return Firestore.instance
+  //       .collection('users')
+  //       .document(user.user.uid)
+  //       .collection('balances')
+  //       .snapshots();
+  // }).map((snap) => snap.documents.map(balanceFromSnapshot).toList());
 
   Future<List<User>> searchFriends(String email) async {
     if (email.isEmpty) {
