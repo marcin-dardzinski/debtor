@@ -41,6 +41,7 @@ class ExpenseRepository {
     final payer = User.fromDocument(await document['payer'].get(), me.user.uid);
     final borrower =
         User.fromDocument(await document['payer'].get(), me.user.uid);
-    return Expense(name, description, amount, payer, borrower);
+    final currency = document['currency'] as String;
+    return Expense(name, description, amount, payer, borrower, currency);
   }
 }
