@@ -7,8 +7,16 @@ class BalanceItem {
   final DateTime date;
   final Decimal amount;
   final String description;
+  final String currency;
   final bool isExpense;
 
-  BalanceItem(this.payer, this.recipient, this.date, this.amount,
-      this.description, this.isExpense);
+  BalanceItem(
+    this.payer,
+    this.recipient,
+    this.date,
+    this.amount,
+    this.currency,
+    this.description,
+    this.isExpense,
+  );
 }

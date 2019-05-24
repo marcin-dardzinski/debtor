@@ -5,6 +5,7 @@ import 'package:debtor/models/balance_item.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/services/balances_service.dart';
+import 'package:debtor/widgets/currency_display.dart';
 import 'package:debtor/widgets/user_bar.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,7 @@ class FriendPage extends StatelessWidget {
           );
 
           if (amount != null) {
-            await _balancesService.pay(_friend.uid, amount);
+            await _balancesService.pay(_friend.uid, amount, 'PLN');
             Navigator.pop(context);
           }
         },
@@ -94,9 +95,9 @@ class ExpenseTile extends StatelessWidget {
       subtitle: Text(balance.payer.name),
       trailing: Container(
         margin: const EdgeInsets.only(right: 8),
-        child: Text(
-          amount.toStringAsFixed(2),
-          style: TextStyle(color: getColorForBalance(amount)),
+        child: CurrencyDisplay(
+          balance.amount,
+          balance.currency,
         ),
       ),
     );

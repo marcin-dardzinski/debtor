@@ -5,6 +5,7 @@ class Payment {
   final String recipient;
   final Decimal amount;
   final DateTime date;
+  final String currency;
 
-  Payment(this.payer, this.recipient, this.amount, this.date);
+  Payment(this.payer, this.recipient, this.amount, this.date, this.currency);
 }
