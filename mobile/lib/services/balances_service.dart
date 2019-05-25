@@ -135,7 +135,8 @@ class BalancesService {
       'payer': Firestore.instance.collection('users').document(p.payer),
       'recipient': Firestore.instance.collection('users').document(p.recipient),
       'amount': p.amount.toDouble(),
-      'date': p.date.toIso8601String()
+      'date': p.date.toIso8601String(),
+      'currency': p.currency
     };
   }
 }

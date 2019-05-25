@@ -1,12 +1,11 @@
 import 'package:debtor/authenticator.dart';
-import 'package:debtor/forms/payment_form.dart';
 import 'package:debtor/models/balance.dart';
 import 'package:debtor/models/balance_item.dart';
 import 'package:debtor/models/user.dart';
+import 'package:debtor/pages/payment_page.dart';
 import 'package:debtor/services/balances_service.dart';
 import 'package:debtor/widgets/currency_display.dart';
 import 'package:debtor/widgets/user_bar.dart';
-import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 BalancesService _balancesService = BalancesService();
@@ -24,26 +23,16 @@ class FriendPage extends StatelessWidget {
       appBar: AppBar(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.attach_money),
-        // onPressed: () => {},
-        // onPressed: () async {
-        //   final currentUser = await _authenticator.loggedInUser.first;
-        //   final amount = await showDialog<Decimal>(
-        //     context: context,
-        //     builder: (ctx) => Container(
-        //           child: AlertDialog(
-        //             title: const Center(
-        //               child: Text('Add payment'),
-        //             ),
-        //             content: PaymentForm(currentUser.user, _friend, _balance),
-        //           ),
-        //         ),
-        //   );
-
-        //   if (amount != null) {
-        //     await _balancesService.pay(_friend.uid, amount, 'PLN');
-        //     Navigator.pop(context);
-        //   }
-        // },
+        onPressed: () async {
+          final currentUser = await _authenticator.loggedInUser.first;
+          await Navigator.push<bool>(
+            context,
+            MaterialPageRoute<bool>(
+              builder: (context) =>
+                  PaymentPage(currentUser.user, _friend, _balance),
+            ),
+          );
+        },
       ),
       body: Column(
         children: [

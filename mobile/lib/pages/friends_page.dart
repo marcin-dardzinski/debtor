@@ -86,6 +86,7 @@ class FriendsPage extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: balance.amounts.entries
+            .where((e) => e.value != Decimal.fromInt(0))
             .map((e) => CurrencyDisplay(e.value, e.key))
             .toList(),
       ),

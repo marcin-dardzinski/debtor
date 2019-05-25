@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:debtor/models/balance.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/widgets/currency_display.dart';
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 class UserBar extends StatelessWidget {
@@ -29,9 +30,11 @@ class UserBar extends StatelessWidget {
         style: const TextStyle(fontSize: 12),
       )
     ];
-
+    final zero = Decimal.fromInt(0);
     totalBalance.amounts.forEach((currency, amount) {
-      balanceView.add(CurrencyDisplay(amount, currency));
+      if (amount != zero) {
+        balanceView.add(CurrencyDisplay(amount, currency));
+      }
     });
 
     return Container(

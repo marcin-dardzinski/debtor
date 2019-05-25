@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
