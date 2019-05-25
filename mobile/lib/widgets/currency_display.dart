@@ -9,12 +9,14 @@ class CurrencyDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final prefix = amount < Decimal.fromInt(0) ? '' : ' ';
+
     return RichText(
       text: TextSpan(
         style: DefaultTextStyle.of(context).style,
         children: <TextSpan>[
           TextSpan(
-            text: amount.toStringAsFixed(2),
+            text: prefix + amount.toStringAsFixed(2),
             style: TextStyle(
               color: getColorForBalance(amount),
             ),

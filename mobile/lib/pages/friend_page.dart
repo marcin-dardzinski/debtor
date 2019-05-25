@@ -1,8 +1,7 @@
 import 'package:debtor/authenticator.dart';
 import 'package:debtor/forms/payment_form.dart';
-import 'package:debtor/helpers.dart';
+import 'package:debtor/models/balance.dart';
 import 'package:debtor/models/balance_item.dart';
-import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/services/balances_service.dart';
 import 'package:debtor/widgets/currency_display.dart';
@@ -15,7 +14,7 @@ Authenticator _authenticator = Authenticator();
 
 class FriendPage extends StatelessWidget {
   final User _friend;
-  final Decimal _balance;
+  final Balance _balance;
 
   const FriendPage(this._friend, this._balance, {Key key}) : super(key: key);
 
@@ -24,34 +23,35 @@ class FriendPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () async {
-          final currentUser = await _authenticator.loggedInUser.first;
-          final amount = await showDialog<Decimal>(
-            context: context,
-            builder: (ctx) => Container(
-                  child: AlertDialog(
-                    title: const Center(
-                      child: Text('Add payment'),
-                    ),
-                    content: PaymentForm(currentUser.user, _friend, _balance),
-                  ),
-                ),
-          );
+        child: const Icon(Icons.attach_money),
+        // onPressed: () => {},
+        // onPressed: () async {
+        //   final currentUser = await _authenticator.loggedInUser.first;
+        //   final amount = await showDialog<Decimal>(
+        //     context: context,
+        //     builder: (ctx) => Container(
+        //           child: AlertDialog(
+        //             title: const Center(
+        //               child: Text('Add payment'),
+        //             ),
+        //             content: PaymentForm(currentUser.user, _friend, _balance),
+        //           ),
+        //         ),
+        //   );
 
-          if (amount != null) {
-            await _balancesService.pay(_friend.uid, amount, 'PLN');
-            Navigator.pop(context);
-          }
-        },
+        //   if (amount != null) {
+        //     await _balancesService.pay(_friend.uid, amount, 'PLN');
+        //     Navigator.pop(context);
+        //   }
+        // },
       ),
       body: Column(
         children: [
           Container(
             margin: const EdgeInsets.only(bottom: 16),
             child: UserBar(
-              user: _friend,
-              totalBalance: _balance,
+              _friend,
+              _balance,
             ),
           ),
           StreamBuilder<List<BalanceItem>>(
@@ -96,7 +96,7 @@ class ExpenseTile extends StatelessWidget {
       trailing: Container(
         margin: const EdgeInsets.only(right: 8),
         child: CurrencyDisplay(
-          balance.amount,
+          amount,
           balance.currency,
         ),
       ),

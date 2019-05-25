@@ -36,24 +36,25 @@ class FriendsService {
     );
   }
 
-  Stream<Decimal> get myTotalBalance => myBalances.map((balances) {
-        var total = Decimal.fromInt(0);
+  Stream<Balance> get myTotalBalance => myBalances.map((balances) {
+        final total = <String, Decimal>{};
         for (var balance in balances) {
-          total += balance.amount;
+          balance.amounts.forEach((currency, amount) {
+            total.update(currency, (current) => current + amount,
+                ifAbsent: () => amount);
+          });
         }
-        return total;
+        return Balance('', total);
       });
 
-  final BehaviorSubject<List<Balance>> _stubStream =
-      BehaviorSubject<List<Balance>>(seedValue: []);
-  Stream<List<Balance>> get myBalances => _stubStream.stream;
-  // _authenticator.loggedInUser.asyncExpand((user) {
-  //   return Firestore.instance
-  //       .collection('users')
-  //       .document(user.user.uid)
-  //       .collection('balances')
-  //       .snapshots();
-  // }).map((snap) => snap.documents.map(balanceFromSnapshot).toList());
+  Stream<List<Balance>> get myBalances =>
+      _authenticator.loggedInUser.asyncExpand((user) {
+        return Firestore.instance
+            .collection('users')
+            .document(user.user.uid)
+            .collection('balances')
+            .snapshots();
+      }).map((snap) => snap.documents.map(balanceFromSnapshot).toList());
 
   Future<List<User>> searchFriends(String email) async {
     if (email.isEmpty) {

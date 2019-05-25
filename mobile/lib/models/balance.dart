@@ -3,14 +3,16 @@ import 'package:decimal/decimal.dart';
 
 class Balance {
   String otherUserId;
-  Decimal amount;
+  Map<String, Decimal> amounts;
 
-  Balance(this.otherUserId, this.amount);
+  Balance(this.otherUserId, this.amounts);
 }
 
 Balance balanceFromSnapshot(DocumentSnapshot snap) {
-  return Balance(
-    snap.documentID,
-    Decimal.parse(snap.data['amount'].toString()),
-  );
+  // final amountsRaw =
+  //      as Map<String, dynamic> ?? Map<String, dynamic>();
+  final amounts = (snap['amount'] as Map)
+      .map<String, Decimal>((dynamic k, dynamic v) => MapEntry(k, Decimal.parse(v.toString())));
+
+  return Balance(snap.documentID, amounts);
 }

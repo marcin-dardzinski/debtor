@@ -59,10 +59,9 @@ export const updateBalancesOnEventAdded = functions.firestore.document('events/{
 
         const newPayer = payerComb(getCurrentAmount(payerBalances, currency), amount);
         const newBorrower = borrowerComb(getCurrentAmount(borrowerBalances, currency), amount);
-        const key = `amount.${currency}`;
 
-        await payerBalancesRef.set({ [key]: newPayer }, { merge: true });
-        await borrowerBalancesRef.set({ [key]: newBorrower }, { merge: true });
+        await payerBalancesRef.set({ amount: { [currency]: newPayer } }, { merge: true });
+        await borrowerBalancesRef.set({ amount: { [currency]: newBorrower } }, { merge: true });
     };
 
     const revertExpense = (expense: any) => updateExpense(expense, subtract, add);
@@ -99,7 +98,7 @@ export const updateBalancesOnPayment = functions.firestore.document('payments/{p
         const balanceRef = user.collection('balances').doc(friend.id);
         const balance = (await balanceRef.get()).data();
         const newAmount = change + (balance && balance['amount'] && balance['amount'][cur] as number || 0);
-        await balanceRef.set({ [`amount.${cur}`]: newAmount }, { merge: true })
+        await balanceRef.set({ amount: { [currency]: newAmount } }, { merge: true })
     };
 
     await update(payerRef, recipientRef, amount, currency);
