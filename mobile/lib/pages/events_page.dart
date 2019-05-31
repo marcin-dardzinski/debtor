@@ -5,6 +5,8 @@ import 'package:debtor/models/expense.dart';
 import 'package:debtor/pages/event_details_page.dart';
 import 'package:debtor/pages/loader.dart';
 import 'package:debtor/providers/event_bloc_provider.dart';
+import 'package:debtor/widgets/event_list.dart';
+import 'package:debtor/widgets/event_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -35,20 +37,23 @@ class _EventsPageState extends State<EventsPage> {
           onPressed: () async {
             final me = await authenticator.loggedInUser.first;
             Navigator.push(
-                context,
-                MaterialPageRoute<Event>(
-                    builder: (ctx) => EventDetailsPage(Event(
-                        '',
-                        '',
-                        [me.user],
-                        <Expense>[],
-                        DateTime.now())))).then((updatedEvent) {
+                    context,
+                    MaterialPageRoute<Event>(
+                        builder: (ctx) => EventDetailsPage(Event(
+                            '', '', [me.user], <Expense>[], DateTime.now()))))
+                .then((updatedEvent) {
               if (updatedEvent != null) {
                 _bloc.addEvent(updatedEvent);
               }
             });
           }),
     );
+  }
+
+  Function _updateEventTapFactory(Event event) {
+    return () => Navigator.push(context,
+            MaterialPageRoute<Event>(builder: (ctx) => EventDetailsPage(event)))
+        .then((Event event) => _bloc.updateEvent(event));
   }
 
   Widget _buildEventsList() {
@@ -63,26 +68,8 @@ class _EventsPageState extends State<EventsPage> {
             return Text(snapshot.error.toString());
           }
 
-          return ListView.builder(
-            itemCount: snapshot.data.length,
-            itemBuilder: (ctx, idx) => _eventToListTile(snapshot.data[idx]),
-          );
-        });
-  }
-
-  ListTile _eventToListTile(Event event) {
-    return ListTile(
-        title: Text(event.name),
-        onTap: () {
-          Navigator.push(
-                  context,
-                  MaterialPageRoute<Event>(
-                      builder: (ctx) => EventDetailsPage(event)))
-              .then((updatedEvent) {
-            if (updatedEvent != null) {
-              _bloc.updateEvent(updatedEvent);
-            }
-          });
+          return EventList(
+              events: snapshot.data, onTapFactory: _updateEventTapFactory);
         });
   }
 }
