@@ -16,14 +16,14 @@ class BalancesService {
   static final BalancesService _instance = BalancesService._internal();
   final Authenticator _authenticator = Authenticator();
 
-  Future pay(String userId, Decimal amount) async {
+  Future pay(String userId, Decimal amount, String currency) async {
     final currentUserId = (await _authenticator.loggedInUser.first).user.uid;
     final payerRecipient = _getPayerAndRecipient(currentUserId, userId, amount);
     final payer = payerRecipient.item1;
     final recipient = payerRecipient.item2;
     amount = payerRecipient.item3;
 
-    final payment = Payment(payer, recipient, amount, DateTime.now());
+    final payment = Payment(payer, recipient, amount, DateTime.now(), currency);
 
     await Firestore.instance.collection('payments').add(_paymentToMap(payment));
   }
@@ -71,9 +71,10 @@ class BalancesService {
             final amount = Decimal.parse(exp['amount'].toString());
             final date = DateTime.parse(doc['date']);
             final description = exp['name'] as String;
+            final currency = exp['currency'] as String;
 
             return BalanceItem(
-                payer, recipient, date, amount, description, true);
+                payer, recipient, date, amount, currency, description, true);
           });
         });
       });
@@ -104,8 +105,10 @@ class BalancesService {
       return snap.documents.map((doc) {
         final date = DateTime.parse(doc['date']);
         final amount = Decimal.parse(doc['amount'].toString());
+        final currency = doc['currency'] as String;
 
-        return BalanceItem(payer, recipient, date, amount, 'Payment', false);
+        return BalanceItem(
+            payer, recipient, date, amount, currency, 'Payment', false);
       });
     });
   }
@@ -130,10 +133,10 @@ class BalancesService {
   Map<String, dynamic> _paymentToMap(Payment p) {
     return <String, dynamic>{
       'payer': Firestore.instance.collection('users').document(p.payer),
-      'recipient':
-          Firestore.instance.collection('users').document(p.recipient),
+      'recipient': Firestore.instance.collection('users').document(p.recipient),
       'amount': p.amount.toDouble(),
-      'date': p.date.toIso8601String()
+      'date': p.date.toIso8601String(),
+      'currency': p.currency
     };
   }
 }

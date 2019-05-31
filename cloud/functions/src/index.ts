@@ -38,15 +38,16 @@ export const updateBalancesOnEventAdded = functions.firestore.document('events/{
     const add: AmountCombiner = (a, b) => a + b;
     const subtract: AmountCombiner = (a, b) => a - b;
 
-    const getCurrentAmount = (doc: DocumentSnapshot) => {
+    const getCurrentAmount = (doc: DocumentSnapshot, currency: string) => {
         const data = doc.data();
-        return data && data['amount'] as number || 0;
+        return data && data['amount'] && data['amount']['currency'] || 0;
     }
 
     const updateExpense = async (expense: any, payerComb: AmountCombiner, borrowerComb: AmountCombiner) => {
         const payer = expense['payer'] as DocumentReference;
         const borrower = expense['borrower'] as DocumentReference;
         const amount = expense['amount'] as number;
+        const currency = expense['currency'] as string;
 
         const payerId = payer.id;
         const borrowerId = borrower.id;
@@ -56,11 +57,11 @@ export const updateBalancesOnEventAdded = functions.firestore.document('events/{
         const payerBalances = await payerBalancesRef.get();
         const borrowerBalances = await borrowerBalancesRef.get();
 
-        const newPayer = payerComb(getCurrentAmount(payerBalances), amount);
-        const newBorrower = borrowerComb(getCurrentAmount(borrowerBalances), amount);
+        const newPayer = payerComb(getCurrentAmount(payerBalances, currency), amount);
+        const newBorrower = borrowerComb(getCurrentAmount(borrowerBalances, currency), amount);
 
-        await payerBalancesRef.set({ amount: newPayer });
-        await borrowerBalancesRef.set({ amount: newBorrower });
+        await payerBalancesRef.set({ amount: { [currency]: newPayer } }, { merge: true });
+        await borrowerBalancesRef.set({ amount: { [currency]: newBorrower } }, { merge: true });
     };
 
     const revertExpense = (expense: any) => updateExpense(expense, subtract, add);
@@ -91,14 +92,15 @@ export const updateBalancesOnPayment = functions.firestore.document('payments/{p
     const payerRef = data['payer'] as DocumentReference;
     const recipientRef = data['recipient'] as DocumentReference;
     const amount = data['amount'] as number;
+    const currency = data['currency'] as string;
 
-    const update = async (user: DocumentReference, friend: DocumentReference, change: number) => {
+    const update = async (user: DocumentReference, friend: DocumentReference, change: number, cur: string) => {
         const balanceRef = user.collection('balances').doc(friend.id);
         const balance = (await balanceRef.get()).data();
-        const newAmount = change + (balance && balance['amount'] as number || 0);
-        await balanceRef.set({ amount: newAmount })
+        const newAmount = change + (balance && balance['amount'] && balance['amount'][cur] as number || 0);
+        await balanceRef.set({ amount: { [currency]: newAmount } }, { merge: true })
     };
 
-    await update(payerRef, recipientRef, amount);
-    await update(recipientRef, payerRef, -amount);
+    await update(payerRef, recipientRef, amount, currency);
+    await update(recipientRef, payerRef, -amount, currency);
 });

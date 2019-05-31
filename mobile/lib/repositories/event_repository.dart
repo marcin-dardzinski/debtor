@@ -46,7 +46,8 @@ class EventRepository {
       'description': e.description,
       'amount': e.amount.toInt(),
       'payer': _firestore.collection('users').document(e.payer.uid),
-      'borrower': _firestore.collection('users').document(e.borrower.uid)
+      'borrower': _firestore.collection('users').document(e.borrower.uid),
+      'currency': e.currency
     };
   }
 
@@ -107,7 +108,8 @@ class EventRepository {
         .firstWhere((User u) => u.uid == expenseMap['borrower'].documentID);
     final payer = eventUsers
         .firstWhere((User u) => u.uid == expenseMap['payer'].documentID);
+    final currency = expenseMap['currency'] as String;
 
-    return Expense(name, description, amount, payer, borrower);
+    return Expense(name, description, amount, payer, borrower, currency);
   }
 }

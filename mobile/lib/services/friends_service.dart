@@ -4,6 +4,7 @@ import 'package:debtor/models/balance.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/authenticator.dart';
 import 'package:decimal/decimal.dart';
+import 'package:rxdart/rxdart.dart';
 
 class FriendsService {
   factory FriendsService() {
@@ -35,12 +36,15 @@ class FriendsService {
     );
   }
 
-  Stream<Decimal> get myTotalBalance => myBalances.map((balances) {
-        var total = Decimal.fromInt(0);
+  Stream<Balance> get myTotalBalance => myBalances.map((balances) {
+        final total = <String, Decimal>{};
         for (var balance in balances) {
-          total += balance.amount;
+          balance.amounts.forEach((currency, amount) {
+            total.update(currency, (current) => current + amount,
+                ifAbsent: () => amount);
+          });
         }
-        return total;
+        return Balance('', total);
       });
 
   Stream<List<Balance>> get myBalances =>

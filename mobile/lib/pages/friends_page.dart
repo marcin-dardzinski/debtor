@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:debtor/authenticator.dart';
-import 'package:debtor/helpers.dart';
 import 'package:debtor/models/balance.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/pages/friend_page.dart';
 import 'package:debtor/services/friends_service.dart';
+import 'package:debtor/widgets/currency_display.dart';
 import 'package:debtor/widgets/user_bar.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
@@ -15,23 +15,24 @@ import 'package:tuple/tuple.dart';
 Authenticator authenticator = Authenticator();
 FriendsService friends = FriendsService();
 
-Observable<Tuple2<AuthenticationState, Decimal>> _combineUserAndTotalBalance() {
+Observable<Tuple2<AuthenticationState, Balance>> _combineUserAndTotalBalance() {
   return Observable.combineLatest2(
       authenticator.loggedInUser, friends.myTotalBalance,
-      (AuthenticationState auth, Decimal balance) {
+      (AuthenticationState auth, Balance balance) {
     return Tuple2(auth, balance);
   });
 }
 
-Observable<List<Tuple2<User, Decimal>>> _combineFriendsAndBalances() {
+Observable<List<Tuple2<User, Balance>>> _combineFriendsAndBalances() {
   return Observable.combineLatest2(friends.friends, friends.myBalances,
       (List<User> friends, List<Balance> balances) {
-    final balancesMap = Map<String, Decimal>.fromIterable(balances,
-        key: (dynamic b) => b.otherUserId, value: (dynamic b) => b.amount);
+    final balancesMap = Map<String, Balance>.fromIterable(balances,
+        key: (dynamic b) => b.otherUserId, value: (dynamic b) => b);
 
     return friends.map((friend) {
-      final amount = balancesMap[friend.uid] ?? Decimal.fromInt(0);
-      return Tuple2(friend, amount);
+      final balance =
+          balancesMap[friend.uid] ?? Balance(friend.uid, <String, Decimal>{});
+      return Tuple2(friend, balance);
     }).toList();
   });
 }
@@ -41,19 +42,19 @@ class FriendsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        StreamBuilder<Tuple2<AuthenticationState, Decimal>>(
+        StreamBuilder<Tuple2<AuthenticationState, Balance>>(
             stream: _combineUserAndTotalBalance(),
             builder: (ctx, snapshot) {
               if (snapshot.hasData && snapshot.data.item1.user != null) {
                 return UserBar(
-                  user: snapshot.data.item1.user,
-                  totalBalance: snapshot.data.item2,
+                  snapshot.data.item1.user,
+                  snapshot.data.item2,
                 );
               }
               return Container();
             }),
         const Divider(),
-        StreamBuilder<List<Tuple2<User, Decimal>>>(
+        StreamBuilder<List<Tuple2<User, Balance>>>(
           stream: _combineFriendsAndBalances(),
           builder: (ctx, snapshot) {
             if (!snapshot.hasData) {
@@ -76,19 +77,18 @@ class FriendsPage extends StatelessWidget {
     );
   }
 
-  Widget _friendTile(BuildContext ctx, User user, Decimal balance) {
+  Widget _friendTile(BuildContext ctx, User user, Balance balance) {
     return ListTile(
       leading: CircleAvatar(
         backgroundImage: CachedNetworkImageProvider(user.avatar),
       ),
       title: Text(user.name),
-      subtitle: Text(user.email),
-      trailing: Container(
-        margin: const EdgeInsets.only(right: 8),
-        child: Text(
-          balance.toStringAsFixed(2),
-          style: TextStyle(color: getColorForBalance(balance)),
-        ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: balance.amounts.entries
+            .where((e) => e.value != Decimal.fromInt(0))
+            .map((e) => CurrencyDisplay(e.value, e.key))
+            .toList(),
       ),
       onTap: () {
         Navigator.push(
