@@ -4,6 +4,7 @@ import 'package:debtor/models/event.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/pages/event_details_page/expense_editable_list.dart';
+import 'package:debtor/pages/event_details_page/expenses_card.dart';
 import 'package:debtor/pages/event_details_page/friends_selection_list.dart';
 import 'package:debtor/pages/event_details_page/participants_card.dart';
 import 'package:debtor/pages/event_details_page/user_editable_list.dart';
@@ -71,25 +72,13 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                 onAdd: _bloc.addUser,
                 onDelete: _bloc.deleteUser,
               ),
-              _buildExpensesCard(event)
+              ExpensesCard(
+                event: event,
+                onAdd: _bloc.addExpense,
+                onDelete: _bloc.removeExpense,
+              )
             ],
           ),
         ));
-  }
-
-  Widget _buildExpensesCard(Event event) {
-    final onTap = () {
-      showDialog<Expense>(
-              context: context,
-              builder: (ctx) => Container(
-                  child: AlertDialog(
-                      title: const Text('Add expense'),
-                      content: ExpenseForm(
-                          availableParticipants: event.participants))))
-          .then((expense) => _bloc.addExpense(expense));
-    };
-
-    return ExpenseEditableList(
-        expenses: event.expenses, onAdd: onTap, onDelete: _bloc.removeExpense);
   }
 }
