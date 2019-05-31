@@ -1,14 +1,7 @@
 import 'package:debtor/blocs/event_detail_bloc.dart';
-import 'package:debtor/forms/expense_form.dart';
 import 'package:debtor/models/event.dart';
-import 'package:debtor/models/expense.dart';
-import 'package:debtor/models/user.dart';
-import 'package:debtor/pages/event_details_page/expense_editable_list.dart';
 import 'package:debtor/pages/event_details_page/expenses_card.dart';
-import 'package:debtor/pages/event_details_page/friends_selection_list.dart';
 import 'package:debtor/pages/event_details_page/participants_card.dart';
-import 'package:debtor/pages/event_details_page/user_editable_list.dart';
-import 'package:debtor/pages/event_details_page/user_selection_list.dart';
 import 'package:debtor/pages/loader.dart';
 import 'package:debtor/services/friends_service.dart';
 import 'package:flutter/material.dart';
