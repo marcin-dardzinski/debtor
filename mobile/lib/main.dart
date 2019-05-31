@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
     // _HomePageEntry(ExpensesPage(), 'Home', Icons.home),
     _HomePageEntry(FriendsPage(), 'Friends', Icons.people),
     _HomePageEntry(
-        EventBlocProvider(child: EventsPage()), 'Events', Icons.event),
+        EventBlocProvider(child: const EventsPage()), 'Events', Icons.event),
   ];
 
   @override

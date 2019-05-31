@@ -4,7 +4,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 class PaymentForm extends StatefulWidget {
-  PaymentForm(this.currentUser, this.otherUser, this.balance, {Key key})
+  const PaymentForm(this.currentUser, this.otherUser, this.balance, {Key key})
       : super(key: key);
   final User currentUser;
   final User otherUser;

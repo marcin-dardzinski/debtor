@@ -4,7 +4,7 @@ import 'package:debtor/pages/loader.dart';
 import 'package:flutter/material.dart';
 
 class ExpensesPage extends StatefulWidget {
-  ExpensesPage({Key key}) : super(key: key);
+  const ExpensesPage({Key key}) : super(key: key);
 
   @override
   _ExpensesPageState createState() => _ExpensesPageState();

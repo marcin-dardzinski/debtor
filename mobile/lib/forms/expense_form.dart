@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 CurrenciesService currenciesService = CurrenciesService();
 
 class ExpenseForm extends StatefulWidget {
-  ExpenseForm({Key key, this.availableParticipants}) : super(key: key);
+  const ExpenseForm({Key key, this.availableParticipants}) : super(key: key);
   final List<User> availableParticipants;
 
   @override

@@ -3,6 +3,9 @@ import 'package:debtor/forms/expense_form.dart';
 import 'package:debtor/models/event.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
+import 'package:debtor/pages/event_details_page/expense_editable_list.dart';
+import 'package:debtor/pages/event_details_page/friends_selection_list.dart';
+import 'package:debtor/pages/event_details_page/participants_card.dart';
 import 'package:debtor/pages/event_details_page/user_editable_list.dart';
 import 'package:debtor/pages/event_details_page/user_selection_list.dart';
 import 'package:debtor/pages/loader.dart';
@@ -63,101 +66,30 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                   title: TextField(
                       decoration: InputDecoration(labelText: 'Event name'),
                       controller: eventNameController)),
-              Container(child: _buildParticipantsCard(event.participants)),
-              Container(child: _buildExpensesCard(event))
+              ParticipantsCard(
+                event: event,
+                onAdd: _bloc.addUser,
+                onDelete: _bloc.deleteUser,
+              ),
+              _buildExpensesCard(event)
             ],
           ),
         ));
   }
 
-  Widget _buildCardGroup(Widget header, Widget content, Widget footer) {
-    return Card(
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-          header,
-          content,
-          Container(
-              child: footer, decoration: BoxDecoration(color: Colors.grey[200]))
-        ]));
-  }
-
-  Widget _buildParticipantsCard(List<User> participants) {
-    final onTap = () {
-      showDialog<List<User>>(
-              context: context,
-              builder: (ctx) =>
-                  Container(child: _buildFriendsListSelection(participants)))
-          .then((u) {
-        u.forEach((user) => _bloc.addUser(user));
-      });
-    };
-
-    final onDelete = (User user) {
-      _bloc.deleteUser(user);
-    };
-
-    return UserEditableList(
-        users: participants, onAdd: onTap, onDelete: onDelete);
-  }
-
-  Widget _buildFriendsListSelection(List<User> participants) {
-    return StreamBuilder<List<User>>(
-      stream: friendsService.friends,
-      builder: (ctx, snapshot) {
-        if (!snapshot.hasData) {
-          return Loader();
-        }
-
-        final unaddedFriends = snapshot.data;
-        unaddedFriends.removeWhere(
-            (u) => participants.map((User p) => p.uid).contains(u.uid));
-        return Container(
-            width: 300,
-            height: 300,
-            child: UserSelectionList(
-              users: unaddedFriends,
-              isSelected: unaddedFriends.map<bool>((User u) => false).toList(),
-              onSubmit: (List<User> users) =>
-                  users.forEach((User u) => _bloc.addUser(u)),
-            ));
-      },
-    );
-  }
-
   Widget _buildExpensesCard(Event event) {
-    final header = ListTile(
-        leading: const Icon(Icons.attach_money), title: const Text('Expenses'));
-    final footer = ListTile(
-      leading: const Icon(Icons.add),
-      title: const Text('Add expense'),
-      onTap: () async {
-        final createdExpense = await showDialog<Expense>(
-            context: context,
-            builder: (ctx) => Container(
-                child: AlertDialog(
-                    title: const Text('Add expense'),
-                    content: ExpenseForm(
-                        availableParticipants: event.participants))));
-        if (createdExpense != null) {
-          _bloc.addExpense(createdExpense);
-        }
-      },
-    );
+    final onTap = () {
+      showDialog<Expense>(
+              context: context,
+              builder: (ctx) => Container(
+                  child: AlertDialog(
+                      title: const Text('Add expense'),
+                      content: ExpenseForm(
+                          availableParticipants: event.participants))))
+          .then((expense) => _bloc.addExpense(expense));
+    };
 
-    return _buildCardGroup(header, _buildExpensesList(event.expenses), footer);
-  }
-
-  Widget _buildExpensesList(List<Expense> expenses) {
-    return ListView.builder(
-        shrinkWrap: true,
-        itemCount: expenses.length,
-        itemBuilder: (BuildContext ctx, int index) {
-          return _buildExpenseTile(expenses[index]);
-        });
-  }
-
-  Widget _buildExpenseTile(Expense expense) {
-    return ListTile(title: Text(expense.name));
+    return ExpenseEditableList(
+        expenses: event.expenses, onAdd: onTap, onDelete: _bloc.removeExpense);
   }
 }

@@ -9,11 +9,13 @@ class EditableList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: List<Widget>.from(<Widget>[header])
-              ..add(content)
-              ..add(footer)));
+    return Container(
+      child: Card(
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: List<Widget>.from(<Widget>[header])
+                ..add(content)
+                ..add(footer))),
+    );
   }
 }
