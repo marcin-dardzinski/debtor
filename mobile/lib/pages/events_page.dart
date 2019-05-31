@@ -2,18 +2,17 @@ import 'package:debtor/authenticator.dart';
 import 'package:debtor/blocs/event_bloc.dart';
 import 'package:debtor/models/event.dart';
 import 'package:debtor/models/expense.dart';
-import 'package:debtor/pages/event_details_page.dart';
+import 'package:debtor/pages/event_details_page/event_details_page.dart';
 import 'package:debtor/pages/loader.dart';
 import 'package:debtor/providers/event_bloc_provider.dart';
 import 'package:debtor/widgets/event_list.dart';
-import 'package:debtor/widgets/event_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 final Authenticator authenticator = Authenticator();
 
 class EventsPage extends StatefulWidget {
-  EventsPage({Key key}) : super(key: key);
+  const EventsPage({Key key}) : super(key: key);
 
   @override
   _EventsPageState createState() => _EventsPageState();

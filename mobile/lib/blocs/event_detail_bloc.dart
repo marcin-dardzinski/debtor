@@ -21,7 +21,14 @@ class EventDetailsBloc {
   }
 
   void addUser(User user) {
-    selectedEvent.participants.add(user);
+    if (user != null) {
+      selectedEvent.participants.add(user);
+      _eventDetailsState.add(selectedEvent);
+    }
+  }
+
+  void deleteUser(User user) {
+    selectedEvent.participants.remove(user);
     _eventDetailsState.add(selectedEvent);
   }
 

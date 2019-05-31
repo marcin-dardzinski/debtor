@@ -1,10 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:debtor/blocs/event_detail_bloc.dart';
 import 'package:debtor/forms/expense_form.dart';
-import 'package:debtor/helpers.dart';
 import 'package:debtor/models/event.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
+import 'package:debtor/pages/event_details_page/user_editable_list.dart';
+import 'package:debtor/pages/event_details_page/user_selection_list.dart';
 import 'package:debtor/pages/loader.dart';
 import 'package:debtor/services/friends_service.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ FriendsService friendsService = FriendsService();
 
 class EventDetailsPage extends StatefulWidget {
   final Event _event;
-  EventDetailsPage(this._event, {Key key}) : super(key: key);
+  const EventDetailsPage(this._event, {Key key}) : super(key: key);
 
   @override
   _EventDetailsPageState createState() => _EventDetailsPageState(_event);
@@ -83,54 +83,46 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   }
 
   Widget _buildParticipantsCard(List<User> participants) {
-    final header = ListTile(
-        leading: const Icon(Icons.group), title: const Text('Participants'));
-    final footer = ListTile(
-      leading: const Icon(Icons.add),
-      title: const Text('Add participant'),
-      onTap: () {
-        showDialog<User>(
-                context: context,
-                builder: (ctx) =>
-                    Container(child: _buildFriendsListSelection(participants)))
-            .then((u) {
-          if (u != null) {
-            _bloc.addUser(u);
-          }
-        });
-      },
-    );
+    final onTap = () {
+      showDialog<List<User>>(
+              context: context,
+              builder: (ctx) =>
+                  Container(child: _buildFriendsListSelection(participants)))
+          .then((u) {
+        u.forEach((user) => _bloc.addUser(user));
+      });
+    };
 
-    return _buildCardGroup(
-        header, _buildParticipantsList(participants), footer);
+    final onDelete = (User user) {
+      _bloc.deleteUser(user);
+    };
+
+    return UserEditableList(
+        users: participants, onAdd: onTap, onDelete: onDelete);
   }
 
   Widget _buildFriendsListSelection(List<User> participants) {
-    return AlertDialog(
-        title: const Text('Add friends'),
-        content: StreamBuilder<List<User>>(
-          stream: friendsService.friends,
-          builder: (ctx, snapshot) {
-            if (!snapshot.hasData) {
-              return Loader();
-            }
+    return StreamBuilder<List<User>>(
+      stream: friendsService.friends,
+      builder: (ctx, snapshot) {
+        if (!snapshot.hasData) {
+          return Loader();
+        }
 
-            final unaddedFriends = snapshot.data;
-            unaddedFriends.removeWhere(
-                (u) => participants.map((User p) => p.uid).contains(u.uid));
-            return Container(
-                width: 300,
-                height: 300,
-                child: ListView.builder(
-                  itemCount: unaddedFriends.length,
-                  itemBuilder: (ctx, idx) {
-                    return ListTile(
-                        title: Text(unaddedFriends[idx].name),
-                        onTap: () => Navigator.pop(ctx, unaddedFriends[idx]));
-                  },
-                ));
-          },
-        ));
+        final unaddedFriends = snapshot.data;
+        unaddedFriends.removeWhere(
+            (u) => participants.map((User p) => p.uid).contains(u.uid));
+        return Container(
+            width: 300,
+            height: 300,
+            child: UserSelectionList(
+              users: unaddedFriends,
+              isSelected: unaddedFriends.map<bool>((User u) => false).toList(),
+              onSubmit: (List<User> users) =>
+                  users.forEach((User u) => _bloc.addUser(u)),
+            ));
+      },
+    );
   }
 
   Widget _buildExpensesCard(Event event) {
@@ -163,22 +155,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         itemBuilder: (BuildContext ctx, int index) {
           return _buildExpenseTile(expenses[index]);
         });
-  }
-
-  Widget _buildParticipantsList(List<User> participants) {
-    return ListView.builder(
-        shrinkWrap: true,
-        itemCount: participants.length,
-        itemBuilder: (BuildContext ctx, int index) {
-          return _buildParticipantTile(participants[index]);
-        });
-  }
-
-  Widget _buildParticipantTile(User user) {
-    return ListTile(
-        leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(user.avatar)),
-        title: Text(displayUserNameWithYouIndicator(user)));
   }
 
   Widget _buildExpenseTile(Expense expense) {

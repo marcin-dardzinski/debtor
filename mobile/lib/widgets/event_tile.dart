@@ -7,7 +7,6 @@ class EventTile extends StatefulWidget {
   final Event event;
   final Function onTap;
 
-  @override
   _EventTileState createState() => _EventTileState();
 }
 
