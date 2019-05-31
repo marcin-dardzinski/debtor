@@ -14,7 +14,7 @@ class ParticipantsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return UserEditableList(
-        users: event.participants,
+        users: event.participants.where((User u) => !u.isCurrentUser).toList(),
         onAdd: () => showDialog<List<User>>(
                 context: context,
                 builder: (ctx) => FriendsSelectionList(event: event)).then((u) {
