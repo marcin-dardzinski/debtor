@@ -18,7 +18,12 @@ class ExpenseEditableList extends StatelessWidget {
               avatar: expense.borrower.avatar,
               borderColor: Colors.redAccent,
               borderWidth: 2),
-          title: Text(expense.name),
+          title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(expense.name),
+                Text('${expense.amount} ${expense.currency}')
+              ]),
           subtitle: Text(expense.description),
           trailing: BorderUserAvatar(
               avatar: expense.payer.avatar,
