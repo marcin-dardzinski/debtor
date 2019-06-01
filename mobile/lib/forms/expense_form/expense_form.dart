@@ -1,11 +1,13 @@
+import 'package:debtor/clients/nbp_api_client.dart';
 import 'package:debtor/forms/expense_form/user_selection_dropdown.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/services/currencies_service.dart';
+import 'package:debtor/services/currency_exchange_service.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
-CurrenciesService currenciesService = CurrenciesService();
+CurrenciesService test = CurrenciesService();
 
 class ExpenseForm extends StatefulWidget {
   const ExpenseForm({Key key, this.availableParticipants}) : super(key: key);
@@ -21,6 +23,7 @@ class ExpenseFormState extends State<ExpenseForm> {
   User _currentPayer;
   User _currentBorrower;
   String _currency;
+  List<String> _availableCurrencies = <String>[];
 
   @override
   void initState() {
@@ -29,9 +32,17 @@ class ExpenseFormState extends State<ExpenseForm> {
     super.initState();
   }
 
+  Future _getAvailableCurrencies() async {
+    // final availableCurrencies = await test.getAvailableCurrencies();
+    // setState(() {
+    //   _availableCurrencies = availableCurrencies;
+    // });
+  }
+
   @override
   Widget build(BuildContext context) {
     final expense = Expense.empty();
+    _getAvailableCurrencies();
 
     return SingleChildScrollView(
       child: Form(
@@ -106,7 +117,7 @@ class ExpenseFormState extends State<ExpenseForm> {
   }
 
   List<DropdownMenuItem<String>> _getCurrenciesDropdown() {
-    return currenciesService.allCurrencies
+    return _availableCurrencies
         .map(
           (c) => DropdownMenuItem(
                 value: c,
