@@ -1,6 +1,6 @@
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/pages/event_details_page/editable_list.dart';
-import 'package:debtor/widgets/user_avatar.dart';
+import 'package:debtor/widgets/border_user_avatar.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseEditableList extends StatelessWidget {
@@ -14,9 +14,16 @@ class ExpenseEditableList extends StatelessWidget {
     return Dismissible(
       key: Key(expense.hashCode.toString()),
       child: ListTile(
-          leading: UserAvatar(avatar: expense.borrower.avatar),
+          leading: BorderUserAvatar(
+              avatar: expense.borrower.avatar,
+              borderColor: Colors.redAccent,
+              borderWidth: 2),
           title: Text(expense.name),
-          trailing: UserAvatar(avatar: expense.payer.avatar)),
+          subtitle: Text(expense.description),
+          trailing: BorderUserAvatar(
+              avatar: expense.payer.avatar,
+              borderColor: Colors.greenAccent,
+              borderWidth: 2)),
       onDismissed: (direction) => onDelete(expense),
     );
   }

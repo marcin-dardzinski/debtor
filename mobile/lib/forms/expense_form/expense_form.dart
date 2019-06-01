@@ -1,5 +1,4 @@
 import 'package:debtor/forms/expense_form/user_selection_dropdown.dart';
-import 'package:debtor/helpers.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/services/currencies_service.dart';
