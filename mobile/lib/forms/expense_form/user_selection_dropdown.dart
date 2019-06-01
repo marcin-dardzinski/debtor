@@ -9,13 +9,13 @@ class UserSelectionDropdown extends StatelessWidget {
       this.users,
       this.selectedUser,
       this.onChanged,
-      this.onSaved,
-      this.label})
+      this.label,
+      this.validator})
       : super(key: key);
   final List<User> users;
   final User selectedUser;
   final Function onChanged;
-  final Function onSaved;
+  final Function validator;
   final String label;
 
   @override
@@ -28,6 +28,6 @@ class UserSelectionDropdown extends StatelessWidget {
             .toList(),
         value: selectedUser,
         onChanged: onChanged,
-        onSaved: onSaved);
+        validator: validator);
   }
 }
