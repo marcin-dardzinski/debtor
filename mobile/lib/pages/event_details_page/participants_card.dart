@@ -15,11 +15,15 @@ class ParticipantsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return UserEditableList(
         users: event.participants.where((User u) => !u.isCurrentUser).toList(),
-        onAdd: () => showDialog<List<User>>(
-                context: context,
-                builder: (ctx) => FriendsSelectionList(event: event)).then((u) {
-              u.forEach(onAdd);
-            }),
+        onAdd: () async {
+          final users = await showDialog<List<User>>(
+              context: context,
+              builder: (ctx) => FriendsSelectionList(event: event));
+
+          if (users != null) {
+            users.forEach(onAdd);
+          }
+        },
         onDelete: onDelete);
   }
 }

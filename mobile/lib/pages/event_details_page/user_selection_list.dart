@@ -17,11 +17,14 @@ class _UserSelectionListState extends State<UserSelectionList> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Add friends'),
-      content: ListView.builder(
-        itemCount: widget.users.length,
-        itemBuilder: (BuildContext ctx, int index) {
-          return Column(children: <Widget>[
-            CheckboxListTile(
+      contentPadding: const EdgeInsets.all(4),
+      content: Container(
+        width: 300,
+        height: 400,
+        child: ListView.builder(
+          itemCount: widget.users.length,
+          itemBuilder: (BuildContext ctx, int index) {
+            return CheckboxListTile(
                 title: Text(widget.users[index].name),
                 secondary: UserAvatar(avatar: widget.users[index].avatar),
                 value: selectedUsers.contains(widget.users[index]),
@@ -31,11 +34,11 @@ class _UserSelectionListState extends State<UserSelectionList> {
                         ? selectedUsers.add(widget.users[index])
                         : selectedUsers.remove(widget.users[index]);
                   });
-                }),
-          ]);
-        },
+                });
+          },
+        ),
       ),
-      actions: <Widget>[
+      actions: [
         FlatButton(
           child: const Text('Submit'),
           onPressed: () => Navigator.pop(context, selectedUsers),
