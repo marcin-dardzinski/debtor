@@ -7,6 +7,7 @@ import 'package:debtor/services/balances_service.dart';
 import 'package:debtor/widgets/currency_display.dart';
 import 'package:debtor/widgets/user_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 BalancesService _balancesService = BalancesService();
 Authenticator _authenticator = Authenticator();
@@ -70,6 +71,8 @@ class FriendPage extends StatelessWidget {
 }
 
 class ExpenseTile extends StatelessWidget {
+  static DateFormat formatter = DateFormat('d MMM yyyy');
+
   final BalanceItem balance;
   const ExpenseTile(this.balance);
 
@@ -80,8 +83,14 @@ class ExpenseTile extends StatelessWidget {
 
     return ListTile(
       leading: Icon(balance.isExpense ? Icons.receipt : Icons.attach_money),
-      title: Text(balance.description),
-      subtitle: Text(balance.payer.name),
+      title: Text(balance.description, style: const TextStyle(fontSize: 18)),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(balance.payer.name),
+          Text(formatter.format(balance.date))
+        ],
+      ),
       trailing: Container(
         margin: const EdgeInsets.only(right: 8),
         child: CurrencyDisplay(
