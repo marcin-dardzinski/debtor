@@ -35,16 +35,17 @@ class _EventsPageState extends State<EventsPage> {
           child: const Icon(Icons.add),
           onPressed: () async {
             final me = await authenticator.loggedInUser.first;
-            Navigator.push(
-                    context,
-                    MaterialPageRoute<Event>(
-                        builder: (ctx) => EventDetailsPage(Event(
-                            '', '', [me.user], <Expense>[], DateTime.now()))))
-                .then((updatedEvent) {
-              if (updatedEvent != null) {
-                _bloc.addEvent(updatedEvent);
-              }
-            });
+            final updatedEvent = await Navigator.push(
+              context,
+              MaterialPageRoute<Event>(
+                builder: (ctx) => EventDetailsPage(
+                      Event('', '', [me.user], <Expense>[], DateTime.now()),
+                    ),
+              ),
+            );
+            if (updatedEvent != null) {
+              _bloc.addEvent(updatedEvent);
+            }
           }),
     );
   }
