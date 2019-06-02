@@ -18,17 +18,16 @@ class ExpenseEditableList extends StatelessWidget {
               avatar: expense.borrower.avatar,
               borderColor: Colors.redAccent,
               borderWidth: 2),
-          title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(expense.name),
-                Text('${expense.amount} ${expense.currency}')
-              ]),
+          title: Text(expense.name),
           subtitle: Text(expense.description),
-          trailing: BorderUserAvatar(
-              avatar: expense.payer.avatar,
-              borderColor: Colors.greenAccent,
-              borderWidth: 2)),
+          trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+            Text('${expense.amount} ${expense.currency}'),
+            Container(width: 8),
+            BorderUserAvatar(
+                avatar: expense.payer.avatar,
+                borderColor: Colors.greenAccent,
+                borderWidth: 2),
+          ])),
       onDismissed: (direction) => onDelete(expense),
     );
   }
