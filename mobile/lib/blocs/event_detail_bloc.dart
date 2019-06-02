@@ -16,12 +16,30 @@ class EventDetailsBloc {
   }
 
   void addExpense(Expense expense) {
-    selectedEvent.expenses.add(expense);
-    _eventDetailsState.add(selectedEvent);
+    if (expense != null) {
+      selectedEvent.expenses.add(expense);
+      _eventDetailsState.add(selectedEvent);
+    }
+  }
+
+  void removeExpense(Expense expense) {
+    if (expense != null) {
+      selectedEvent.expenses.remove(expense);
+      _eventDetailsState.add(selectedEvent);
+    }
   }
 
   void addUser(User user) {
-    selectedEvent.participants.add(user);
+    if (user != null) {
+      selectedEvent.participants.add(user);
+      _eventDetailsState.add(selectedEvent);
+    }
+  }
+
+  void deleteUser(User user) {
+    selectedEvent.participants.remove(user);
+    selectedEvent.expenses.removeWhere(
+        (Expense expense) => expense.payer == user || expense.borrower == user);
     _eventDetailsState.add(selectedEvent);
   }
 

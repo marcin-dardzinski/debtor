@@ -12,6 +12,8 @@ class EventBloc {
   }
 
   void updateEvent(Event event) {
-    _repository.updateEvent(event);
+    if (event != null) {
+      _repository.updateEvent(event);
+    }
   }
 }

@@ -1,4 +1,4 @@
-import 'package:debtor/helpers.dart';
+import 'package:debtor/forms/expense_form/user_selection_dropdown.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/services/currencies_service.dart';
@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 CurrenciesService currenciesService = CurrenciesService();
 
 class ExpenseForm extends StatefulWidget {
-  ExpenseForm({Key key, this.availableParticipants}) : super(key: key);
+  const ExpenseForm({Key key, this.availableParticipants}) : super(key: key);
   final List<User> availableParticipants;
 
   @override
@@ -20,15 +20,11 @@ class ExpenseFormState extends State<ExpenseForm> {
   Expense expense;
   User _currentPayer;
   User _currentBorrower;
-  List<DropdownMenuItem<User>> availableParticipants;
   String _currency;
 
   @override
   void initState() {
     expense = Expense.empty();
-    availableParticipants = _getUsersDropdown();
-    _currentPayer = availableParticipants[0].value;
-    _currentBorrower = availableParticipants[0].value;
     _currency = 'PLN';
     super.initState();
   }
@@ -75,18 +71,28 @@ class ExpenseFormState extends State<ExpenseForm> {
                 ),
               ],
             ),
-            DropdownButtonFormField<User>(
-                decoration: InputDecoration(labelText: 'Borrower'),
-                items: _getUsersDropdown(),
-                value: _currentBorrower,
-                onChanged: (value) => setState(() => _currentBorrower = value),
-                onSaved: (value) => expense.borrower = _currentBorrower),
-            DropdownButtonFormField<User>(
-                decoration: InputDecoration(labelText: 'Payer'),
-                items: _getUsersDropdown(),
-                value: _currentPayer,
-                onChanged: (value) => setState(() => _currentPayer = value),
-                onSaved: (value) => expense.payer = _currentPayer),
+            UserSelectionDropdown(
+                label: 'Borrower',
+                users: widget.availableParticipants,
+                selectedUser: _currentBorrower,
+                onChanged: (User value) => setState(() {
+                      if (value == _currentPayer) {
+                        _currentPayer = _currentBorrower;
+                      }
+                      _currentBorrower = value;
+                    }),
+                onSaved: (User value) => expense.borrower = _currentBorrower),
+            UserSelectionDropdown(
+                label: 'Payer',
+                users: widget.availableParticipants,
+                selectedUser: _currentPayer,
+                onChanged: (User value) => setState(() {
+                      if (value == _currentBorrower) {
+                        _currentBorrower = _currentPayer;
+                      }
+                      _currentPayer = value;
+                    }),
+                onSaved: (User value) => expense.payer = _currentPayer),
             RaisedButton(
                 child: const Text('Submit'),
                 onPressed: () {
@@ -97,13 +103,6 @@ class ExpenseFormState extends State<ExpenseForm> {
         ),
       ),
     );
-  }
-
-  List<DropdownMenuItem<User>> _getUsersDropdown() {
-    return widget.availableParticipants
-        .map((x) => DropdownMenuItem(
-            value: x, child: Text(displayUserNameWithYouIndicator(x))))
-        .toList();
   }
 
   List<DropdownMenuItem<String>> _getCurrenciesDropdown() {
