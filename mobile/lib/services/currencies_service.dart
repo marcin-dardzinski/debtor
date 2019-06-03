@@ -1,10 +1,11 @@
-class CurrenciesService {
-  factory CurrenciesService() {
+class CurrencyExchangeService {
+  factory CurrencyExchangeService() {
     return _instance;
   }
-  CurrenciesService._internal();
+  CurrencyExchangeService._internal();
 
-  static final CurrenciesService _instance = CurrenciesService._internal();
+  static final CurrencyExchangeService _instance =
+      CurrencyExchangeService._internal();
 
   List<String> get allCurrencies => _allCurrencies;
 

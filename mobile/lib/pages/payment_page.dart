@@ -6,7 +6,7 @@ import 'package:debtor/services/currencies_service.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
-final CurrenciesService currenciesService = CurrenciesService();
+final CurrencyExchangeService currenciesService = CurrencyExchangeService();
 final BalancesService _balancesService = BalancesService();
 
 class PaymentPage extends StatefulWidget {

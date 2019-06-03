@@ -1,13 +1,14 @@
 import 'package:debtor/clients/nbp_api_client.dart';
+import 'package:debtor/forms/expense_form/currency_selection_dropdown.dart';
 import 'package:debtor/forms/expense_form/user_selection_dropdown.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
-import 'package:debtor/services/currencies_service.dart';
+import 'package:debtor/pages/loader.dart';
 import 'package:debtor/services/currency_exchange_service.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
-CurrenciesService test = CurrenciesService();
+CurrencyExchangeService test = CurrencyExchangeService(NBPApiClient());
 
 class ExpenseForm extends StatefulWidget {
   const ExpenseForm({Key key, this.availableParticipants}) : super(key: key);
@@ -23,7 +24,6 @@ class ExpenseFormState extends State<ExpenseForm> {
   User _currentPayer;
   User _currentBorrower;
   String _currency;
-  List<String> _availableCurrencies = <String>[];
 
   @override
   void initState() {
@@ -70,16 +70,28 @@ class ExpenseFormState extends State<ExpenseForm> {
                           expense.amount = Decimal.parse(amount)),
                 ),
                 Container(
-                  width: 65,
-                  margin: const EdgeInsets.only(top: 11), // :(
-                  child: DropdownButtonFormField<String>(
-                    items: _getCurrenciesDropdown(),
-                    value: _currency,
-                    onChanged: (value) => setState(() => _currency = value),
-                    onSaved: (value) =>
-                        setState(() => expense.currency = _currency),
-                  ),
-                ),
+                    width: 65,
+                    margin: const EdgeInsets.only(top: 11), // :(
+                    child: FutureBuilder(
+                        future: test.getAvailableCurrencies(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<List<String>> snapshot) {
+                          if (!snapshot.hasData) {
+                            return Loader();
+                          }
+
+                          if (snapshot.hasError) {
+                            return Text(snapshot.error.toString());
+                          }
+
+                          return DropdownButtonFormField<String>(
+                              items: snapshot.data
+                                  .toList()
+                                  .map((c) => DropdownMenuItem(
+                                      value: c, child: Text(c)))
+                                  .toList(),
+                              value: );
+                        })),
               ],
             ),
             UserSelectionDropdown(
@@ -114,16 +126,5 @@ class ExpenseFormState extends State<ExpenseForm> {
         ),
       ),
     );
-  }
-
-  List<DropdownMenuItem<String>> _getCurrenciesDropdown() {
-    return _availableCurrencies
-        .map(
-          (c) => DropdownMenuItem(
-                value: c,
-                child: Text(c),
-              ),
-        )
-        .toList();
   }
 }

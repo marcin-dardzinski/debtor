@@ -9,7 +9,8 @@ class CurrencyExchangeService {
     final currentExchangeRates = await client.getCurrentExchangeRates();
     final dynamic availableCurrencies = currentExchangeRates[0]['rates']
         .map((dynamic rate) => rate['code'])
-        .toList(); // :(
+        .toList()
+          ..add('PLN');
     return availableCurrencies.cast<String>();
   }
 }
