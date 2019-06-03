@@ -27,8 +27,8 @@ export const addFriend = functions.https.onCall(async (request, ctx) => {
     const callerUser = users.doc(caller);
     const toAddUser = users.doc(toAdd);
 
-    await callerUser.set({ friends: [toAddUser] }, { merge: true })
-    await toAddUser.set({ friends: [callerUser] }, { merge: true })
+    await callerUser.set({ friends: admin.firestore.FieldValue.arrayUnion(toAddUser) }, { merge: true })
+    await toAddUser.set({ friends: admin.firestore.FieldValue.arrayUnion(callerUser) }, { merge: true })
 });
 
 
