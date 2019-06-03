@@ -87,14 +87,36 @@ class PaymentPageState extends State<PaymentPage> {
                     ),
                   ),
                   Container(
-                    width: 65,
-                    margin: const EdgeInsets.only(top: 11), // :(
-                    child: DropdownButtonFormField<String>(
-                      items: _getCurrenciesDropdown(),
-                      value: _currency,
-                      onChanged: (value) => setState(() => _currency = value),
-                    ),
-                  ),
+                      width: 65,
+                      margin: const EdgeInsets.only(top: 11), // :(
+                      child: FutureBuilder(
+                        future: currenciesService.allCuriencies(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<List<String>> snapshot) {
+                          if (!snapshot.hasData) {
+                            return Container();
+                          }
+                          return DropdownButtonFormField<String>(
+                            items: snapshot.data
+                                .map((String currency) => DropdownMenuItem(
+                                    value: currency, child: Text(currency)))
+                                .toList(),
+                            value: _currency,
+                            onChanged: (value) async {
+                              var currentValue =
+                                  Decimal.parse(amountController.text);
+                              currentValue =
+                                  await currenciesService.exchangeCurrencie(
+                                      currentValue, _currency, value);
+                              setState(() {
+                                _currency = value;
+                                amountController.text =
+                                    currentValue.abs().toStringAsFixed(2);
+                              });
+                            },
+                          );
+                        },
+                      )),
                 ],
               ),
             ),
@@ -135,17 +157,6 @@ class PaymentPageState extends State<PaymentPage> {
       Navigator.pop(context, true);
     }
     Navigator.pop(context, false);
-  }
-
-  List<DropdownMenuItem<String>> _getCurrenciesDropdown() {
-    return currenciesService.allCurrencies
-        .map(
-          (c) => DropdownMenuItem(
-                value: c,
-                child: Text(c),
-              ),
-        )
-        .toList();
   }
 }
 

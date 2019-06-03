@@ -1,4 +1,5 @@
 import 'package:debtor/clients/nbp_api_client.dart';
+import 'package:decimal/decimal.dart';
 
 class CurrencyExchangeService {
   factory CurrencyExchangeService() {
@@ -18,6 +19,14 @@ class CurrencyExchangeService {
     return availableCurrencies.toList()
       ..add('PLN')
       ..sort();
+  }
+
+  Future<Decimal> exchangeCurrencie(
+      Decimal currentValue, String fromCurrency, String toCurrency) async {
+    final Decimal fromCurrencyRate = await client.getExchangeRate(fromCurrency);
+    final Decimal toCurrencyRate = await client.getExchangeRate(toCurrency);
+
+    return currentValue * fromCurrencyRate * toCurrencyRate;
   }
 
   List<String> get allCurrencies => _allCurrencies;
