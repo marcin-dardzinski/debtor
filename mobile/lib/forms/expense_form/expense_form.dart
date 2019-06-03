@@ -1,14 +1,12 @@
-import 'package:debtor/clients/nbp_api_client.dart';
-import 'package:debtor/forms/expense_form/currency_selection_dropdown.dart';
 import 'package:debtor/forms/expense_form/user_selection_dropdown.dart';
 import 'package:debtor/models/expense.dart';
 import 'package:debtor/models/user.dart';
-import 'package:debtor/pages/loader.dart';
-import 'package:debtor/services/currency_exchange_service.dart';
+import 'package:debtor/services/currencies_service.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
+import 'package:validators/validators.dart';
 
-CurrencyExchangeService test = CurrencyExchangeService(NBPApiClient());
+CurrenciesService currenciesService = CurrenciesService();
 
 class ExpenseForm extends StatefulWidget {
   const ExpenseForm({Key key, this.availableParticipants}) : super(key: key);
@@ -21,29 +19,16 @@ class ExpenseForm extends StatefulWidget {
 class ExpenseFormState extends State<ExpenseForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Expense expense;
-  User _currentPayer;
-  User _currentBorrower;
-  String _currency;
 
   @override
   void initState() {
     expense = Expense.empty();
-    _currency = 'PLN';
+    expense.currency = 'PLN';
     super.initState();
-  }
-
-  Future _getAvailableCurrencies() async {
-    // final availableCurrencies = await test.getAvailableCurrencies();
-    // setState(() {
-    //   _availableCurrencies = availableCurrencies;
-    // });
   }
 
   @override
   Widget build(BuildContext context) {
-    final expense = Expense.empty();
-    _getAvailableCurrencies();
-
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
@@ -54,6 +39,11 @@ class ExpenseFormState extends State<ExpenseForm> {
               decoration:
                   InputDecoration(labelText: 'Name', hintText: 'Expense name'),
               onSaved: (value) => expense.name = value,
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'The name has to be specified!';
+                }
+              },
             ),
             TextFormField(
                 decoration: InputDecoration(labelText: 'Description'),
@@ -64,67 +54,87 @@ class ExpenseFormState extends State<ExpenseForm> {
               children: [
                 Flexible(
                   child: TextFormField(
-                      decoration: InputDecoration(labelText: 'Amount'),
-                      keyboardType: TextInputType.number,
-                      onSaved: (amount) =>
-                          expense.amount = Decimal.parse(amount)),
+                    decoration: InputDecoration(labelText: 'Amount'),
+                    keyboardType: TextInputType.number,
+                    onSaved: (amount) => expense.amount = Decimal.parse(amount),
+                    validator: (amount) {
+                      if (!isFloat(amount)) {
+                        return 'Should be a number!';
+                      }
+
+                      if (isNull(amount)) {
+                        return 'Cannot be empty!';
+                      }
+                    },
+                  ),
                 ),
                 Container(
-                    width: 65,
-                    margin: const EdgeInsets.only(top: 11), // :(
-                    child: FutureBuilder(
-                        future: test.getAvailableCurrencies(),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<List<String>> snapshot) {
-                          if (!snapshot.hasData) {
-                            return Loader();
-                          }
-
-                          if (snapshot.hasError) {
-                            return Text(snapshot.error.toString());
-                          }
-
-                          return DropdownButtonFormField<String>(
-                              items: snapshot.data
-                                  .toList()
-                                  .map((c) => DropdownMenuItem(
-                                      value: c, child: Text(c)))
-                                  .toList(),
-                              value: );
-                        })),
+                  width: 65,
+                  margin: const EdgeInsets.only(top: 11), // :(
+                  child: DropdownButtonFormField<String>(
+                    items: _getCurrenciesDropdown(),
+                    value: expense.currency,
+                    onChanged: (value) =>
+                        setState(() => expense.currency = value),
+                    onSaved: (value) =>
+                        setState(() => expense.currency = expense.currency),
+                  ),
+                ),
               ],
             ),
             UserSelectionDropdown(
                 label: 'Borrower',
                 users: widget.availableParticipants,
-                selectedUser: _currentBorrower,
+                selectedUser: expense.borrower,
                 onChanged: (User value) => setState(() {
-                      if (value == _currentPayer) {
-                        _currentPayer = _currentBorrower;
+                      if (value == expense.payer) {
+                        expense.payer = expense.borrower;
                       }
-                      _currentBorrower = value;
+                      expense.borrower = value;
                     }),
-                onSaved: (User value) => expense.borrower = _currentBorrower),
+                validator: (User value) {
+                  if (value == null) {
+                    return 'Borrower has to be specified!';
+                  }
+                }),
             UserSelectionDropdown(
-                label: 'Payer',
-                users: widget.availableParticipants,
-                selectedUser: _currentPayer,
-                onChanged: (User value) => setState(() {
-                      if (value == _currentBorrower) {
-                        _currentBorrower = _currentPayer;
-                      }
-                      _currentPayer = value;
-                    }),
-                onSaved: (User value) => expense.payer = _currentPayer),
+              label: 'Payer',
+              users: widget.availableParticipants,
+              selectedUser: expense.payer,
+              onChanged: (User value) => setState(() {
+                    if (value == expense.borrower) {
+                      expense.borrower = expense.payer;
+                    }
+                    expense.payer = value;
+                  }),
+              validator: (User value) {
+                if (value == null) {
+                  return 'Payer has to be specified!';
+                }
+              },
+            ),
             RaisedButton(
                 child: const Text('Submit'),
                 onPressed: () {
-                  _formKey.currentState.save();
-                  Navigator.pop(context, expense);
+                  if (_formKey.currentState.validate()) {
+                    _formKey.currentState.save();
+                    Navigator.pop(context, expense);
+                  }
                 })
           ],
         ),
       ),
     );
+  }
+
+  List<DropdownMenuItem<String>> _getCurrenciesDropdown() {
+    return currenciesService.allCurrencies
+        .map(
+          (c) => DropdownMenuItem(
+                value: c,
+                child: Text(c),
+              ),
+        )
+        .toList();
   }
 }

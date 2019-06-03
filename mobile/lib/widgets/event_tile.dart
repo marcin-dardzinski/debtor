@@ -1,6 +1,9 @@
 import 'package:debtor/models/event.dart';
 import 'package:debtor/widgets/stacked_user_avatars.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+final formatter = DateFormat('d MMM yyyy');
 
 class EventTile extends StatefulWidget {
   const EventTile({Key key, this.event, this.onTap}) : super(key: key);
@@ -20,6 +23,7 @@ class _EventTileState extends State<EventTile> {
             avatarRadius: 20,
             avatarSpacing: 20),
         title: Text(widget.event.name),
+        trailing: Text(formatter.format(widget.event.date)),
         onTap: widget.onTap);
   }
 }
