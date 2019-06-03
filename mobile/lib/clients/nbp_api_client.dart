@@ -10,12 +10,14 @@ class NBPApiClient {
     return '$_endpointUrl/exchangerates/tables/a?format=json';
   }
 
-  Future<List<dynamic>> getCurrentExchangeRates() async {
+  Future<List<Map<String, dynamic>>> getCurrentExchangeRates() async {
     final response = await _client.get(getCurrentExchangeRatesQuery());
     if (response.statusCode != 200) {
       throw Exception('Failed to fetch available currencies!');
     }
+    final dynamic jsonResponse = json.decode(response.body);
+    final dynamic rates = jsonResponse[0]['rates'];
 
-    return json.decode(response.body);
+    return rates.cast<Map<String, dynamic>>();
   }
 }

@@ -1,3 +1,5 @@
+import 'package:debtor/clients/nbp_api_client.dart';
+
 class CurrencyExchangeService {
   factory CurrencyExchangeService() {
     return _instance;
@@ -6,6 +8,17 @@ class CurrencyExchangeService {
 
   static final CurrencyExchangeService _instance =
       CurrencyExchangeService._internal();
+
+  final NBPApiClient client = NBPApiClient();
+
+  Future<List<String>> allCuriencies() async {
+    final currentExchangeRates = await client.getCurrentExchangeRates();
+    final availableCurrencies = currentExchangeRates
+        .map<String>((Map<String, dynamic> rate) => rate['code']);
+    return availableCurrencies.toList()
+      ..add('PLN')
+      ..sort();
+  }
 
   List<String> get allCurrencies => _allCurrencies;
 

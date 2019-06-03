@@ -9,7 +9,7 @@ void main() {
       final client = NBPApiClient();
       final query = client.getCurrentExchangeRatesQuery();
 
-      expect(query, 'http://api.nbp.pl/api/tables/a?format=json');
+      expect(query, 'http://api.nbp.pl/api/exchangerates/tables/a?format=json');
     });
   });
 }
