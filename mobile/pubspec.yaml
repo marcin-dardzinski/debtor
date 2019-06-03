@@ -21,6 +21,8 @@ dependencies:
   cached_network_image: 0.7.0
   flutter_stetho: ^0.2.2
   tuple: ^1.0.2
+  validators: ^2.0.0
+  intl: ^0.15.8
 
 dev_dependencies:
   flutter_test:
