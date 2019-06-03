@@ -5,6 +5,7 @@ import 'package:debtor/pages/loader.dart';
 import 'package:debtor/providers/event_bloc_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_stetho/flutter_stetho.dart';
 
 Authenticator authenticator;
@@ -107,10 +108,14 @@ class LoginPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Debtor'),
       ),
-      body: Center(
-        child: RaisedButton(
-          child: const Text('Sign in'),
-          onPressed: _signIn,
+      body: Container(
+        // color: Theme.of(context).primaryColor,
+        child: Center(
+          child: GoogleSignInButton(
+            // child: const Text('Sign in'),
+            onPressed: _signIn,
+            darkMode: true,
+          ),
         ),
       ),
     );
