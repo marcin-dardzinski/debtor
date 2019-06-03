@@ -26,7 +26,9 @@ class CurrencyExchangeService {
     final Decimal fromCurrencyRate = await client.getExchangeRate(fromCurrency);
     final Decimal toCurrencyRate = await client.getExchangeRate(toCurrency);
 
-    return currentValue * fromCurrencyRate * toCurrencyRate;
+    return currentValue *
+        (Decimal.fromInt(1) / fromCurrencyRate) *
+        toCurrencyRate;
   }
 
   List<String> get allCurrencies => _allCurrencies;
