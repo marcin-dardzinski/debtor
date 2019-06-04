@@ -16,14 +16,16 @@ class BalancesService {
   static final BalancesService _instance = BalancesService._internal();
   final Authenticator _authenticator = Authenticator();
 
-  Future pay(String userId, Decimal amount, String currency) async {
+  Future pay(String userId, Decimal amount, String currency, bool isConverted,
+      String toCurrency, Decimal exchangedAmount) async {
     final currentUserId = (await _authenticator.loggedInUser.first).user.uid;
     final payerRecipient = _getPayerAndRecipient(currentUserId, userId, amount);
     final payer = payerRecipient.item1;
     final recipient = payerRecipient.item2;
     amount = payerRecipient.item3;
 
-    final payment = Payment(payer, recipient, amount, DateTime.now(), currency);
+    final payment = Payment(payer, recipient, amount, DateTime.now(), currency,
+        isConverted, toCurrency, exchangedAmount);
 
     await Firestore.instance.collection('payments').add(_paymentToMap(payment));
   }
@@ -73,8 +75,8 @@ class BalancesService {
             final description = exp['name'] as String;
             final currency = exp['currency'] as String;
 
-            return BalanceItem(
-                payer, recipient, date, amount, currency, description, true);
+            return BalanceItem(payer, recipient, date, amount, currency,
+                description, true, false, "", Decimal.fromInt(0));
           });
         });
       });
@@ -107,8 +109,25 @@ class BalancesService {
         final amount = Decimal.parse(doc['amount'].toString());
         final currency = doc['currency'] as String;
 
-        return BalanceItem(
-            payer, recipient, date, amount, currency, 'Payment', false);
+        if (doc.data.containsKey('isExchanged')) {
+          final isExchanged = doc['isExchanged'] as bool;
+          final exchangedCurrency = doc['exchangedCurrency'].toString();
+          final exchangedAmount = Decimal.parse(doc['exchangedAmount']);
+          return BalanceItem(
+              payer,
+              recipient,
+              date,
+              amount,
+              currency,
+              'Payment',
+              false,
+              isExchanged,
+              exchangedCurrency,
+              exchangedAmount);
+        }
+
+        return BalanceItem(payer, recipient, date, amount, currency, 'Payment',
+            false, false, '', Decimal.fromInt(0));
       });
     });
   }
@@ -136,7 +155,10 @@ class BalancesService {
       'recipient': Firestore.instance.collection('users').document(p.recipient),
       'amount': p.amount.toDouble(),
       'date': p.date.toIso8601String(),
-      'currency': p.currency
+      'currency': p.currency,
+      'isExchanged': p.isExchanched,
+      'exchangedCurrency': p.exchangeCurrency,
+      'exchangedAmount': p.exchangeAmount.toString(),
     };
   }
 }

@@ -81,6 +81,10 @@ class ExpenseTile extends StatelessWidget {
     final amount =
         balance.payer.isCurrentUser ? balance.amount : -balance.amount;
 
+    final exchangedAmount = balance.payer.isCurrentUser
+        ? balance.exchangedAmount
+        : -balance.exchangedAmount;
+
     return ListTile(
       leading: Icon(balance.isExpense ? Icons.receipt : Icons.attach_money),
       title: Text(balance.description, style: const TextStyle(fontSize: 18)),
@@ -91,12 +95,27 @@ class ExpenseTile extends StatelessWidget {
           Text(formatter.format(balance.date))
         ],
       ),
-      trailing: Container(
-        margin: const EdgeInsets.only(right: 8),
-        child: CurrencyDisplay(
-          amount,
-          balance.currency,
-        ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            child: CurrencyDisplay(
+              amount,
+              balance.currency,
+            ),
+          ),
+          Visibility(
+            visible: balance.isExchanged,
+            child: Container(
+              margin: const EdgeInsets.only(right: 8),
+              child: CurrencyDisplay(
+                exchangedAmount,
+                balance.exchangedCurrency,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

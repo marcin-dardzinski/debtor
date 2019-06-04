@@ -221,10 +221,14 @@ class PaymentPageState extends State<PaymentPage> {
   Future _savePayment(BuildContext context) async {
     final zero = Decimal.fromInt(0);
     var amount = Decimal.parse(fromAmountController.text);
+    var exchangedAmount = Decimal.parse(toAmountController.text);
 
     if (amount != zero) {
       amount = currentUserIsPaying ? amount : -amount;
-      await _balancesService.pay(widget.otherUser.uid, amount, _fromCurrency);
+      exchangedAmount =
+          currentUserIsPaying ? exchangedAmount : -exchangedAmount;
+      await _balancesService.pay(widget.otherUser.uid, amount, _fromCurrency,
+          isConverted, _toCurrency, exchangedAmount);
       Navigator.pop(context, true);
     }
     Navigator.pop(context, false);

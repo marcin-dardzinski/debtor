@@ -9,6 +9,9 @@ class BalanceItem {
   final String description;
   final String currency;
   final bool isExpense;
+  final bool isExchanged;
+  final String exchangedCurrency;
+  final Decimal exchangedAmount;
 
   BalanceItem(
     this.payer,
@@ -18,5 +21,8 @@ class BalanceItem {
     this.currency,
     this.description,
     this.isExpense,
+    this.isExchanged,
+    this.exchangedCurrency,
+    this.exchangedAmount,
   );
 }
