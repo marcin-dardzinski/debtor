@@ -21,9 +21,12 @@ class PaymentPage extends StatefulWidget {
 }
 
 class PaymentPageState extends State<PaymentPage> {
-  String _currency;
+  String _fromCurrency;
+  String _toCurrency;
+  bool isConverted;
   bool currentUserIsPaying;
-  final TextEditingController amountController = TextEditingController();
+  final TextEditingController fromAmountController = TextEditingController();
+  final TextEditingController toAmountController = TextEditingController();
 
   @override
   void initState() {
@@ -33,97 +36,165 @@ class PaymentPageState extends State<PaymentPage> {
     final firstDebt =
         balances.entries.firstWhere((e) => e.value != zero, orElse: () => null);
     if (firstDebt != null) {
-      amountController.text = firstDebt.value.abs().toStringAsFixed(2);
-      _currency = firstDebt.key;
+      fromAmountController.text = firstDebt.value.abs().toStringAsFixed(2);
+      _fromCurrency = firstDebt.key;
       currentUserIsPaying = firstDebt.value <= zero;
     } else {
-      amountController.text = '00.00';
-      _currency = 'PLN';
+      fromAmountController.text = '00.00';
+      _fromCurrency = 'PLN';
       currentUserIsPaying = true;
     }
+
+    isConverted = false;
+    toAmountController.text = '00.00';
+    _toCurrency = 'PLN';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add payment'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: () => _savePayment(context),
-          )
-        ],
-      ),
-      body: Container(
-        margin: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                UserDisplay(widget.currentUser),
-                Icon(
-                  currentUserIsPaying ? Icons.arrow_forward : Icons.arrow_back,
-                  size: 40,
-                ),
-                UserDisplay(widget.otherUser)
-              ],
-            ),
-            _radioButton('You paid', true),
-            _radioButton('They paid', false),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 100),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: TextFormField(
-                      decoration: InputDecoration(labelText: 'Amount'),
-                      keyboardType: TextInputType.number,
-                      controller: amountController,
-                    ),
-                  ),
-                  Container(
-                      width: 65,
-                      margin: const EdgeInsets.only(top: 11), // :(
-                      child: FutureBuilder(
-                        future: currenciesService.allCuriencies(),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<List<String>> snapshot) {
-                          if (!snapshot.hasData) {
-                            return Container();
-                          }
-                          return DropdownButtonFormField<String>(
-                            items: snapshot.data
-                                .map((String currency) => DropdownMenuItem(
-                                    value: currency, child: Text(currency)))
-                                .toList(),
-                            value: _currency,
-                            onChanged: (value) async {
-                              var currentValue =
-                                  Decimal.parse(amountController.text);
-                              currentValue =
-                                  await currenciesService.exchangeCurrencie(
-                                      currentValue, _currency, value);
-                              setState(() {
-                                _currency = value;
-                                amountController.text =
-                                    currentValue.abs().toStringAsFixed(2);
-                              });
-                            },
-                          );
-                        },
-                      )),
-                ],
-              ),
-            ),
+        appBar: AppBar(
+          title: const Text('Add payment'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.check),
+              onPressed: () => _savePayment(context),
+            )
           ],
         ),
-      ),
-    );
+        body: SingleChildScrollView(
+          child: FutureBuilder(
+            future: currenciesService.allCuriencies(),
+            builder:
+                (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+              if (!snapshot.hasData) {
+                return Container();
+              }
+              return Container(
+                margin: const EdgeInsets.all(16),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          UserDisplay(widget.currentUser),
+                          Icon(
+                            currentUserIsPaying
+                                ? Icons.arrow_forward
+                                : Icons.arrow_back,
+                            size: 40,
+                          ),
+                          UserDisplay(widget.otherUser)
+                        ],
+                      ),
+                      _radioButton('You paid', true),
+                      _radioButton('They paid', false),
+                      Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 100),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(
+                                  child: TextFormField(
+                                    keyboardType: TextInputType.number,
+                                    controller: fromAmountController,
+                                    onEditingComplete: () async {
+                                      var currentValue = Decimal.parse(
+                                          fromAmountController.text);
+                                      currentValue = await currenciesService
+                                          .exchangeCurrencie(currentValue,
+                                              _fromCurrency, _toCurrency);
+                                      setState(() {
+                                        toAmountController.text = currentValue
+                                            .abs()
+                                            .toStringAsFixed(2);
+                                      });
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  width: 65,
+                                  child: DropdownButtonFormField<String>(
+                                    items: snapshot.data
+                                        .map((String currency) =>
+                                            DropdownMenuItem(
+                                                value: currency,
+                                                child: Text(currency)))
+                                        .toList(),
+                                    value: _fromCurrency,
+                                    onChanged: (value) async {
+                                      var currentValue = Decimal.parse(
+                                          fromAmountController.text);
+                                      currentValue = await currenciesService
+                                          .exchangeCurrencie(
+                                              currentValue, value, _toCurrency);
+                                      setState(() {
+                                        toAmountController.text = currentValue
+                                            .abs()
+                                            .toStringAsFixed(2);
+                                        _fromCurrency = value;
+                                      });
+                                    },
+                                  ),
+                                )
+                              ])),
+                      Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Flexible(
+                                child: CheckboxListTile(
+                              title: const Text('Pay in other currency'),
+                              value: isConverted,
+                              onChanged: (bool value) {
+                                setState(() {
+                                  isConverted = value;
+                                });
+                              },
+                            ))
+                          ],
+                        ),
+                      ),
+                      Visibility(
+                        visible: isConverted,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(toAmountController.text),
+                            Container(
+                              width: 65,
+                              child: DropdownButtonFormField<String>(
+                                items: snapshot.data
+                                    .map((String currency) => DropdownMenuItem(
+                                        value: currency, child: Text(currency)))
+                                    .toList(),
+                                value: _toCurrency,
+                                onChanged: (value) async {
+                                  var currentValue =
+                                      Decimal.parse(fromAmountController.text);
+                                  currentValue =
+                                      await currenciesService.exchangeCurrencie(
+                                          currentValue, _fromCurrency, value);
+                                  setState(() {
+                                    _toCurrency = value;
+                                    toAmountController.text =
+                                        currentValue.abs().toStringAsFixed(2);
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ]),
+              );
+            },
+          ),
+        ));
   }
 
   Widget _radioButton(String text, bool value) {
@@ -149,11 +220,11 @@ class PaymentPageState extends State<PaymentPage> {
 
   Future _savePayment(BuildContext context) async {
     final zero = Decimal.fromInt(0);
-    var amount = Decimal.parse(amountController.text);
+    var amount = Decimal.parse(fromAmountController.text);
 
     if (amount != zero) {
       amount = currentUserIsPaying ? amount : -amount;
-      await _balancesService.pay(widget.otherUser.uid, amount, _currency);
+      await _balancesService.pay(widget.otherUser.uid, amount, _fromCurrency);
       Navigator.pop(context, true);
     }
     Navigator.pop(context, false);
