@@ -68,6 +68,12 @@ class _EventsPageState extends State<EventsPage> {
             return Text(snapshot.error.toString());
           }
 
+          if (snapshot.data.isEmpty) {
+            return Center(
+              child: const Text('You have no events'),
+            );
+          }
+
           return EventList(
               events: snapshot.data, onTapFactory: _updateEventTapFactory);
         });

@@ -117,6 +117,8 @@ class PaymentPageState extends State<PaymentPage> {
                                 ),
                                 Container(
                                   width: 65,
+                                  margin:
+                                      const EdgeInsets.only(bottom: 5), // :(
                                   child: DropdownButtonFormField<String>(
                                     items: snapshot.data
                                         .map((String currency) =>
@@ -164,8 +166,12 @@ class PaymentPageState extends State<PaymentPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Text(toAmountController.text),
+                            Text(
+                              toAmountController.text,
+                              style: TextStyle(fontSize: 18),
+                            ),
                             Container(
+                              margin: const EdgeInsets.only(left: 20),
                               width: 65,
                               child: DropdownButtonFormField<String>(
                                 items: snapshot.data

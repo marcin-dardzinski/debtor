@@ -56,6 +56,12 @@ class FriendPage extends StatelessWidget {
 
               final balances = snapshot.data;
 
+              if (balances.isEmpty) {
+                return Center(
+                  child: Text('You have no balances with ${_friend.name}'),
+                );
+              }
+
               return Expanded(
                   child: ListView.builder(
                 itemCount: 2 * balances.length,
