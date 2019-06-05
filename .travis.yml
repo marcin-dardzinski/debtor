@@ -60,4 +60,5 @@ deploy:
   file: build/app/outputs/apk/release/*.apk
   on:
     repo: marcin-dardzinski/debtor
-    branch: fix/travis
+    branch: master
+    tags: true
