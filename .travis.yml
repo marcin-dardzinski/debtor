@@ -41,16 +41,18 @@ install:
   - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;28.0.3' > /dev/null
   - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-28' > /dev/null
   - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null
-  - git clone https://github.com/flutter/flutter.git -b beta $FLUTTER_HOME
+  - git clone https://github.com/flutter/flutter.git -b stable $FLUTTER_HOME
   - "$FLUTTER_HOME/bin/flutter doctor"
-  - "FLUTTER_HOME/bin/flutter channel stable"
-  - "FLUTTER_HOME/bin/flutter upgrade"
+  # - "FLUTTER_HOME/bin/flutter channel stable"
+  # - "FLUTTER_HOME/bin/flutter upgrade"
 before_script:
   - yes | $FLUTTER_HOME/bin/flutter doctor --android-licenses
   - export keystore_password=$kestore_password
 script:
   - cd mobile
   - "$FLUTTER_HOME/bin/flutter build apk --release --build-number=$TRAVIS_BUILD_NUMBER"
+before_deploy:
+  - ls mobile/build/app/outputs/apk/releases/
 deploy:
   provider: releases
   branch:
