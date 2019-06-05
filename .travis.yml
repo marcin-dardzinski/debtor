@@ -52,12 +52,13 @@ script:
   - cd mobile
   - "$FLUTTER_HOME/bin/flutter build apk --release --build-number=$TRAVIS_BUILD_NUMBER"
 before_deploy:
-  - ls build/app/outputs/apk/release/
+  - mv build/app/outputs/apk/release/app-release.apk "build/app/outputs/apk/release/debtor-v${TRAVIS_BUILD_NUMBER}.apk"
 deploy:
   provider: releases
   skip_cleanup: true
   api_key:
     secure: e602VDK1OrI50BWBwIyZfltyiDcsmYri81LtXsiucfbU4X2FaGbmJWw1KYwyd81sY5JRlMFObwNQF/QdTxbm2Ah3u7Q5elz+YvtoQdaQXynzg0KDkIecarLMZFXJg+RSmXenNLX2E4Ebz4AJhe9q1bFCDEad/Cu5PiKIVUhKomF7U4p/Y0VWgj1a8oqycqw5pIRksWeCA34RqzvExtCGpZ/9l9p9FlJrutF3doIzzDAEi4su6ZqYZzakonzwbEUOx+Sm5vnxVxLr6CTzUV+sbOAUXWzsQlPA0t8auzxgME5haODfkJ6PnZSUs8iw4tVqY2LRikyeP3Uq6p36v0+jBsdQTPo0ibCXmwlIwACzexCd7ga+v7jdBKIa/q36xS3rO8RlkXwPnxd2wbh0GjZozsjrgAhgrBji92CE1EDtN8uWWG0Mg3z32xuJzpSt9FWPeF/mgz2JfOD7oEgWpqwgLk7k0wO9cbKSxa26DQFRWK/XAM9rLpoPOplDFcbMAKcA6xDC9lv+ZWTB+FEd2KfdEk6AeGsHNZge9HFYy6YFv7piG6+2kqbc49ge91MlAVwh1Q4xHXvi03+uuntxILTaaR0SsUFdSZ7PTYCIOcxqfANJT63+1QgVhhB1KI8TGjo7hKa/0UQ0QcXosXOma+Uq6P7XBLJwto1fhoSZbhaGWOI=
+  file_glob: true
   file: build/app/outputs/apk/release/*.apk
   on:
     repo: marcin-dardzinski/debtor
