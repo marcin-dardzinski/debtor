@@ -105,18 +105,25 @@ class FriendsPage extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 48),
-      child: RaisedButton(
-        child: const Text('Add friend'),
-        onPressed: () async {
-          final newFriend = await showSearch(
-            context: ctx,
-            delegate: AddFriendDelegate(),
-            query: '',
-          );
-          if (newFriend != null) {
-            await friends.addFriend(newFriend);
-          }
-        },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          RaisedButton(
+            child: Text('Add friend', style: TextStyle(color: Colors.white)),
+            color: Theme.of(ctx).primaryColor,
+            onPressed: () async {
+              final newFriend = await showSearch(
+                context: ctx,
+                delegate: AddFriendDelegate(),
+                query: '',
+              );
+              if (newFriend != null) {
+                await friends.addFriend(newFriend);
+              }
+            },
+          )
+        ],
       ),
     );
   }

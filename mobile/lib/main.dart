@@ -63,14 +63,9 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Debtor'),
         actions: [
-          PopupMenuButton<bool>(
-            itemBuilder: (ctx) => [
-                  const PopupMenuItem(
-                    child: Text('Logout'),
-                    value: true,
-                  )
-                ],
-            onSelected: (_) => authenticator.logout(),
+          IconButton(
+            icon: const Icon(Icons.power_settings_new),
+            onPressed: () => authenticator.logout(),
           )
         ],
       ),

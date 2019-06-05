@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:debtor/models/user.dart';
 import 'package:debtor/widgets/user_avatar.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +16,7 @@ class StackedUserAvatars extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 2 * avatarRadius,
-      width: 2 * users.length * avatarRadius,
+      width: 2 * min(users.length, 3) * avatarRadius,
       child: Stack(
           children: users
               .asMap()
@@ -25,6 +27,7 @@ class StackedUserAvatars extends StatelessWidget {
                       child: UserAvatar(
                           avatar: user.avatar, radius: avatarRadius))))
               .values
+              .take(3)
               .toList()),
     );
   }
