@@ -27,8 +27,6 @@ cache:
     - "$HOME/.android/build-cache"
     - "$HOME/.pub-cache"
 before_install:
-  - git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qE '^(mobile/|\.travis.yml)' ||
-    exit 0
   - openssl aes-256-cbc -K $encrypted_b18bf1260431_key -iv $encrypted_b18bf1260431_iv
     -in mobile/android/debtor.jks.enc -out mobile/android/debtor.jks -d
 install:
