@@ -3,6 +3,7 @@ import 'package:debtor/authenticator.dart';
 import 'package:debtor/models/balance.dart';
 import 'package:debtor/models/user.dart';
 import 'package:debtor/pages/friend_page.dart';
+import 'package:debtor/services/currencies_service.dart';
 import 'package:debtor/services/friends_service.dart';
 import 'package:debtor/widgets/currency_display.dart';
 import 'package:debtor/widgets/user_bar.dart';
@@ -14,6 +15,7 @@ import 'package:tuple/tuple.dart';
 
 Authenticator authenticator = Authenticator();
 FriendsService friends = FriendsService();
+CurrencyExchangeService currenciesService = CurrencyExchangeService();
 
 Observable<Tuple2<AuthenticationState, Balance>> _combineUserAndTotalBalance() {
   return Observable.combineLatest2(
@@ -37,7 +39,21 @@ Observable<List<Tuple2<User, Balance>>> _combineFriendsAndBalances() {
   });
 }
 
-class FriendsPage extends StatelessWidget {
+class FriendsPage extends StatefulWidget {
+  FriendsPage({Key key}) : super(key: key);
+
+  _FriendsPageState createState() => _FriendsPageState();
+}
+
+class _FriendsPageState extends State<FriendsPage> {
+  bool _shouldCurrenbyBeUnified;
+
+  @override
+  void initState() {
+    _shouldCurrenbyBeUnified = false;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -46,10 +62,26 @@ class FriendsPage extends StatelessWidget {
             stream: _combineUserAndTotalBalance(),
             builder: (ctx, snapshot) {
               if (snapshot.hasData && snapshot.data.item1.user != null) {
-                return UserBar(
-                  snapshot.data.item1.user,
-                  snapshot.data.item2,
-                );
+                if (_shouldCurrenbyBeUnified) {
+                  return FutureBuilder<Decimal>(
+                    future: _createUnifiedBalanceList(snapshot.data.item2),
+                    builder: (context, snp) {
+                      if (!snp.hasData) {
+                        return Container();
+                      }
+
+                      Balance balance = snapshot.data.item2;
+                      balance.amounts = <String, Decimal>{'PLN': snp.data};
+
+                      return UserBar(snapshot.data.item1.user, balance);
+                    },
+                  );
+                } else {
+                  return UserBar(
+                    snapshot.data.item1.user,
+                    snapshot.data.item2,
+                  );
+                }
               }
               return Container();
             }),
@@ -84,12 +116,21 @@ class FriendsPage extends StatelessWidget {
       ),
       title: Text(user.name),
       subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: balance.amounts.entries
-            .where((e) => e.value != Decimal.fromInt(0))
-            .map((e) => CurrencyDisplay(e.value, e.key))
-            .toList(),
-      ),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _shouldCurrenbyBeUnified
+              ? [
+                  FutureBuilder<Decimal>(
+                      future: _createUnifiedBalanceList(balance),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<Decimal> snapshot) {
+                        if (!snapshot.hasData) {
+                          return Container();
+                        }
+
+                        return CurrencyDisplay(snapshot.data, 'PLN');
+                      })
+                ]
+              : _createBalanceList(balance)),
       onTap: () {
         Navigator.push(
           ctx,
@@ -101,11 +142,29 @@ class FriendsPage extends StatelessWidget {
     );
   }
 
+  Future<Decimal> _createUnifiedBalanceList(Balance balance) async {
+    var exchangedAmount = await Future.wait(balance.amounts.entries
+        .where((e) => e.value != Decimal.fromInt(0))
+        .map((e) async =>
+            await currenciesService.exchangeCurrency(e.value, e.key, 'PLN')));
+    var aggregatedAmount = Decimal.parse(
+        exchangedAmount.reduce((Decimal a, Decimal b) => a + b).toString());
+
+    return aggregatedAmount;
+  }
+
+  List<Widget> _createBalanceList(Balance balance) {
+    return balance.amounts.entries
+        .where((e) => e.value != Decimal.fromInt(0))
+        .map((e) => CurrencyDisplay(e.value, e.key))
+        .toList();
+  }
+
   Widget _addFriendButton(BuildContext ctx) {
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 48),
-      child: Row(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -122,7 +181,15 @@ class FriendsPage extends StatelessWidget {
                 await friends.addFriend(newFriend);
               }
             },
-          )
+          ),
+          SwitchListTile(
+              title: const Text('Unify currency'),
+              value: _shouldCurrenbyBeUnified,
+              onChanged: (value) {
+                setState(() {
+                  _shouldCurrenbyBeUnified = value;
+                });
+              })
         ],
       ),
     );

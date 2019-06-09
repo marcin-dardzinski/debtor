@@ -105,7 +105,7 @@ class PaymentPageState extends State<PaymentPage> {
                                       var currentValue = Decimal.parse(
                                           fromAmountController.text);
                                       currentValue = await currenciesService
-                                          .exchangeCurrencie(currentValue,
+                                          .exchangeCurrency(currentValue,
                                               _fromCurrency, _toCurrency);
                                       setState(() {
                                         toAmountController.text = currentValue
@@ -131,7 +131,7 @@ class PaymentPageState extends State<PaymentPage> {
                                       var currentValue = Decimal.parse(
                                           fromAmountController.text);
                                       currentValue = await currenciesService
-                                          .exchangeCurrencie(
+                                          .exchangeCurrency(
                                               currentValue, value, _toCurrency);
                                       setState(() {
                                         toAmountController.text = currentValue
@@ -183,7 +183,7 @@ class PaymentPageState extends State<PaymentPage> {
                                   var currentValue =
                                       Decimal.parse(fromAmountController.text);
                                   currentValue =
-                                      await currenciesService.exchangeCurrencie(
+                                      await currenciesService.exchangeCurrency(
                                           currentValue, _fromCurrency, value);
                                   setState(() {
                                     _toCurrency = value;

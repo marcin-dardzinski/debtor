@@ -40,10 +40,7 @@ class FriendPage extends StatelessWidget {
         children: [
           Container(
             margin: const EdgeInsets.only(bottom: 16),
-            child: UserBar(
-              _friend,
-              _balance,
-            ),
+            child: UserBar(_friend, _balance),
           ),
           StreamBuilder<List<BalanceItem>>(
             stream: _balancesService.balancesWithUser(_friend),
