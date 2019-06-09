@@ -5,6 +5,7 @@ import 'package:debtor/models/user.dart';
 import 'package:debtor/pages/payment_page.dart';
 import 'package:debtor/services/balances_service.dart';
 import 'package:debtor/widgets/currency_display.dart';
+import 'package:debtor/widgets/exchange_currency_display.dart';
 import 'package:debtor/widgets/user_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -115,7 +116,7 @@ class ExpenseTile extends StatelessWidget {
             visible: balance.isExchanged,
             child: Container(
               margin: const EdgeInsets.only(right: 8),
-              child: CurrencyDisplay(
+              child: ExchangeCurrencyDisplay(
                 exchangedAmount,
                 balance.exchangedCurrency,
               ),
