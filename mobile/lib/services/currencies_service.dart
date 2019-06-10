@@ -21,7 +21,7 @@ class CurrencyExchangeService {
       ..sort();
   }
 
-  Future<Decimal> exchangeCurrencie(
+  Future<Decimal> exchangeCurrency(
       Decimal currentValue, String fromCurrency, String toCurrency) async {
     final Decimal fromCurrencyRate = await client.getExchangeRate(fromCurrency);
     final Decimal toCurrencyRate = await client.getExchangeRate(toCurrency);
