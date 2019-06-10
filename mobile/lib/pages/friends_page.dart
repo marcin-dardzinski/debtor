@@ -42,6 +42,7 @@ Observable<List<Tuple2<User, Balance>>> _combineFriendsAndBalances() {
 class FriendsPage extends StatefulWidget {
   FriendsPage({Key key}) : super(key: key);
 
+  @override
   _FriendsPageState createState() => _FriendsPageState();
 }
 
@@ -61,31 +62,47 @@ class _FriendsPageState extends State<FriendsPage> {
         StreamBuilder<Tuple2<AuthenticationState, Balance>>(
             stream: _combineUserAndTotalBalance(),
             builder: (ctx, snapshot) {
-              if (snapshot.hasData && snapshot.data.item1.user != null) {
-                if (_shouldCurrenbyBeUnified) {
-                  return FutureBuilder<Decimal>(
-                    future: _createUnifiedBalanceList(snapshot.data.item2),
-                    builder: (context, snp) {
-                      if (!snp.hasData) {
-                        return Container();
-                      }
-
-                      Balance balance = snapshot.data.item2;
-                      balance.amounts = <String, Decimal>{'PLN': snp.data};
-
-                      return UserBar(snapshot.data.item1.user, balance);
-                    },
-                  );
-                } else {
-                  return UserBar(
-                    snapshot.data.item1.user,
-                    snapshot.data.item2,
-                  );
-                }
+              if (!snapshot.hasData) {
+                return Container();
               }
-              return Container();
+              final user = snapshot.data.item1;
+              final balance = snapshot.data.item2;
+              if (user == null) {
+                return Container();
+              }
+
+              if (_shouldCurrenbyBeUnified) {
+                return FutureBuilder<Decimal>(
+                  future: _createUnifiedBalanceList(balance),
+                  builder: (context, snp) {
+                    if (!snp.hasData) {
+                      return UserBar(user.user, balance);
+                    }
+
+                    final unifiedBalance =
+                        Balance(balance.otherUserId, {'PLN': snp.data});
+                    return UserBar(user.user, unifiedBalance);
+                  },
+                );
+              } else {
+                return UserBar(
+                  user.user,
+                  balance,
+                );
+              }
             }),
         const Divider(),
+        SwitchListTile(
+          title: const Text('Unify currency'),
+          value: _shouldCurrenbyBeUnified,
+          onChanged: (value) {
+            setState(
+              () {
+                _shouldCurrenbyBeUnified = value;
+              },
+            );
+          },
+        ),
         StreamBuilder<List<Tuple2<User, Balance>>>(
           stream: _combineFriendsAndBalances(),
           builder: (ctx, snapshot) {
@@ -143,14 +160,14 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Future<Decimal> _createUnifiedBalanceList(Balance balance) async {
-    var exchangedAmount = await Future.wait(balance.amounts.entries
+    final exchangedAmount = await Future.wait(balance.amounts.entries
         .where((e) => e.value != Decimal.fromInt(0))
-        .map((e) async =>
-            await currenciesService.exchangeCurrency(e.value, e.key, 'PLN')));
-    var aggregatedAmount = Decimal.parse(
-        exchangedAmount.reduce((Decimal a, Decimal b) => a + b).toString());
+        .map((e) => currenciesService.exchangeCurrency(e.value, e.key, 'PLN')));
+    if (exchangedAmount.isEmpty) {
+      return Decimal.fromInt(0);
+    }
 
-    return aggregatedAmount;
+    return exchangedAmount.reduce((Decimal a, Decimal b) => a + b);
   }
 
   List<Widget> _createBalanceList(Balance balance) {
@@ -182,14 +199,6 @@ class _FriendsPageState extends State<FriendsPage> {
               }
             },
           ),
-          SwitchListTile(
-              title: const Text('Unify currency'),
-              value: _shouldCurrenbyBeUnified,
-              onChanged: (value) {
-                setState(() {
-                  _shouldCurrenbyBeUnified = value;
-                });
-              })
         ],
       ),
     );
